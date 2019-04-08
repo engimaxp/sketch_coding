@@ -3,11 +3,6 @@ dist: trusty
 matrix:
     fast_finish: true
 
-branches:
-    only:
-        - release
-        - master
-
 language: node_js
 node_js:
     - '8.12.0'
