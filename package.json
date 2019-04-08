@@ -1,17 +1,19 @@
 {
   "name": "sketch_coding",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "@types/react": "^16.8.13",
+    "@types/react-dom": "^16.8.3",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-scripts": "2.1.8"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "test": "jest",
+    "webpack": "webpack",
+    "webpack-start-web": "webpack && opn index.html",
+    "start-web": "opn index.html"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -21,5 +23,21 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "devDependencies": {
+    "@types/enzyme": "^3.9.1",
+    "@types/enzyme-adapter-react-16": "^1.0.5",
+    "@types/jest": "^24.0.11",
+    "@types/react-test-renderer": "^16.8.1",
+    "awesome-typescript-loader": "^5.2.1",
+    "enzyme": "^3.9.0",
+    "enzyme-adapter-react-16": "^1.12.1",
+    "opn-cli": "^4.1.0",
+    "react-addons-test-utils": "^15.6.2",
+    "react-test-renderer": "^16.8.6",
+    "source-map-loader": "^0.2.4",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.4.2",
+    "webpack-cli": "^3.3.0"
+  }
 }
