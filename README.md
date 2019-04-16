@@ -17,3 +17,11 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 4. add automatic dependency management : [`greenkeeper`](https://greenkeeper.io/) to project
 
 5. add [Travis-CI](https://travis-ci.org/) to project
+
+6. add [electron](https://electronjs.org/) desktop app frame work [reference repo](https://github.com/Leskd/electron-react-typescript)
+
+7. add [Material-UI](https://material-ui.com/getting-started/usage/) front layer framework
+
+8. add [React-Router]() , [Redux]() , [Redux-thunk]() 
+
+9. add sentry 
