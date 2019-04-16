@@ -34,7 +34,7 @@
     "release-mac": "npm run build && electron-builder --mac --x64",
     "release-all": "npm run build && electron-builder --win --x64 && electron-builder --mac --x64",
     "postinstall": "electron-builder install-app-deps",
-    "test": "node scripts/test.js --env=jsdom --watchAll"
+    "test": "node scripts/test.js --env=jsdom"
   },
   "build": {
     "productName": "Electron-TypeScript-React",
