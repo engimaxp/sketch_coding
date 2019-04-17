@@ -10,7 +10,8 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 2. test and import npm scripts
 
-    - [opn-cli](https://github.com/sindresorhus/opn-cli) for open file or url in scripts  
+    - [opn-cli](https://github.com/sindresorhus/opn-cli) for open file or url in scripts
+    - [react-helmet](https://github.com/nfl/react-helmet) Helmet takes plain HTML tags and outputs plain HTML tags. It's dead simple, and React beginner friendly.
 
 3. add testing framework [jest](https://github.com/facebook/jest) and [enzyme](https://github.com/airbnb/enzyme) support reference [this article](https://github.com/the-road-to-learn-react/the-road-to-learn-react-chinese/blob/master/manuscript/chapter4-cn.md)  and [this repo](https://github.com/wfsm/electron-typescript-react-antd-boilerplate/)
 

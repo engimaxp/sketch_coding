@@ -2,11 +2,19 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { RouterState } from '../types';
 import Routes from '../routes';
+import {Helmet} from 'react-helmet';
 
 class App extends Component {
   render() {
     return (
-      <Routes></Routes>
+        <div>
+            <Helmet>
+                <meta
+                    name="viewport"
+                    content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no"/>
+            </Helmet>
+          <Routes></Routes>
+        </div>
     );
   }
 }
