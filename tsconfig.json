@@ -26,10 +26,16 @@
   "exclude": [
     "node_modules",
     "build",
+    "lib",
+    "tests",
     "scripts",
     "acceptance-tests",
     "webpack",
     "jest",
-    "src/setupTests.ts"
+    "config",
+    "public",
+    "assets",
+    "src/setupTests.ts",
+    "main.js"
   ]
 }
