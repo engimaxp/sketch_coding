@@ -14,10 +14,10 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
     - [X] [react-helmet](https://github.com/nfl/react-helmet) Helmet takes plain HTML tags and outputs plain HTML tags. It's dead simple, and React beginner friendly.
     - [X] [react-select](https://github.com/JedWatson/react-select) The Select control for React (replace [Material-UI select control](https://material-ui.com/demos/selects/))
     - [ ] [Recharts](https://github.com/recharts/recharts) Redefined chart library built with React and D3
-    - [ ] [React-Motion](https://github.com/chenglou/react-motion)A spring that solves your animation problems.
+    - [ ] [React-Motion](https://github.com/chenglou/react-motion) A spring that solves your animation problems.
     - [ ] [react-beautiful-dnd](https://github.com/atlassian/react-beautiful-dnd) Beautiful and accessible drag and drop for lists with React
 
-3. add testing framework [jest](https://github.com/facebook/jest) and [enzyme](https://github.com/airbnb/enzyme) support reference [this article](https://github.com/the-road-to-learn-react/the-road-to-learn-react-chinese/blob/master/manuscript/chapter4-cn.md)  and [this repo](https://github.com/wfsm/electron-typescript-react-antd-boilerplate/)
+3. add testing framework [jest](https://github.com/facebook/jest) , [enzyme](https://github.com/airbnb/enzyme) and [sinon](https://github.com/sinonjs/sinon) support reference [this article](https://github.com/the-road-to-learn-react/the-road-to-learn-react-chinese/blob/master/manuscript/chapter4-cn.md)  and [this repo](https://github.com/wfsm/electron-typescript-react-antd-boilerplate/)
 
 4. add automatic dependency management : [`greenkeeper`](https://greenkeeper.io/) to project
 
