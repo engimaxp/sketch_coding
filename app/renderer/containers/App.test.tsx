@@ -10,21 +10,19 @@ import * as sinon from 'sinon';
 const store = configureStore();
 it('renders without crashing', () => {
   const div = document.createElement('div');
-  ReactDOM.render(<Provider store={store}>
-    <ConnectedRouter history={history}>
-      <App />
-    </ConnectedRouter>
-  </Provider>, div);
+  ReactDOM.render(
+      <Provider store={store}>
+          <ConnectedRouter history={history}>
+              <App />
+          </ConnectedRouter>
+      </Provider>
+      , div);
   ReactDOM.unmountComponentAtNode(div);
 });
 
 describe('Enzyme Shallow', () => {
     it('App\'s title should be Todos', () => {
-        const app = shallow(<Provider store={store}>
-            <ConnectedRouter history={history}>
-                <App />
-            </ConnectedRouter>
-        </Provider>);
+        const app = shallow(<App  store={store}/>);
         expect(app.find('div').length).toEqual(0);
     });
     it('calls componentDidMount', () => {
@@ -37,10 +35,3 @@ describe('Enzyme Shallow', () => {
         expect(App.prototype.componentDidMount).toHaveProperty('callCount', 1 );
     });
 });
-
-// describe('testing', () => {
-//   it('App\'s title should be Todos', () => {
-//     // const app = shallow(<App/>);
-//     expect(1).toEqual(1);
-//   });
-// }

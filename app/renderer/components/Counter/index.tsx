@@ -13,8 +13,8 @@ export default class Counter extends Component<CounterProps> {
     return (
       <div>
         <div>Counter: {count}</div>
-        <button onClick={increment}>+</button>
-        <button onClick={decrement}>-</button>
+        <button className="increment" onClick={increment}>+</button>
+        <button className="decrement" onClick={decrement}>-</button>
       </div>
     );
   }

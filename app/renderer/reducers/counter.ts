@@ -2,11 +2,11 @@ import { INCREMENT, DECREMENT } from '../actions/counter/action_type';
 import { counterActions } from '../actions/counter';
 import { CounterState } from '../types';
 
-const INITIAL_STATE = {
+export const INITIAL_STATE: CounterState = {
   count: 1
 };
 
-export default function counter(state = INITIAL_STATE, action: counterActions): CounterState {
+export default function counter(state: CounterState = INITIAL_STATE, action: counterActions): CounterState {
   switch (action.type) {
     case INCREMENT:
       return {

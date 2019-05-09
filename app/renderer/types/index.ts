@@ -1,7 +1,7 @@
-import { RouterState } from 'connected-react-router';
+import * as ConnectedReactRouter from 'connected-react-router';
 
 export interface RouterState {
-  router: RouterState;
+  router: ConnectedReactRouter.RouterState;
 }
 
 export interface CounterState {
