@@ -10,20 +10,20 @@ interface BaseFetch {
   weather: WeatherData | null;
 }
 
-interface StartFetch extends BaseFetch {
+export interface StartFetch extends BaseFetch {
   type: START_FETCH;
 }
-interface SuccessFetch extends BaseFetch {
+export interface SuccessFetch extends BaseFetch {
   type: SUCCESS_FETCH;
 }
-interface FailFetch extends BaseFetch {
+export interface FailFetch extends BaseFetch {
   type: FAIL_FETCH;
 }
 
 export const startFetchAsync  = () =>
-    (dispatch: Dispatch<weatherActions>): void => {
+    (dispatch: Dispatch<weatherActions>): Promise<void> => {
         dispatch(startFetch());
-        superAgent.get('https://www.tianqiapi.com/api/?version=v6&cityid=101020100')
+        return superAgent.get('https://www.tianqiapi.com/api/?version=v6&cityid=101020100')
             .then((value => {
                 const weather: any = JSON.parse(value.text);
                 const newWeatherData: WeatherData = {
@@ -42,7 +42,7 @@ export const startFetchAsync  = () =>
             });
     };
 
-const startFetch: () => weatherActions = () => ({
+export const startFetch: () => weatherActions = () => ({
     type: START_FETCH,
     fail: false,
     callEnd: false,
@@ -50,7 +50,7 @@ const startFetch: () => weatherActions = () => ({
     weather: null
 });
 
-const successFetch: (newWeatherData: WeatherData) => weatherActions =
+export const successFetch: (newWeatherData: WeatherData) => weatherActions =
     (newWeatherData: WeatherData) => ({
         type: SUCCESS_FETCH,
         weather: newWeatherData,
@@ -59,7 +59,7 @@ const successFetch: (newWeatherData: WeatherData) => weatherActions =
         errorInfo: null
     });
 
-const failFetch: (error: string) => weatherActions =
+export const failFetch: (error: string) => weatherActions =
     (error: string) => ({
         type: FAIL_FETCH,
         fail: true,

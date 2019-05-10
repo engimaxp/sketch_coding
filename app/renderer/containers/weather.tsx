@@ -12,7 +12,11 @@ const mapStateToProps = (state: StoreState) => ({
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
   startFetch: () => {
-    dispatch(startFetchAsync());
+    dispatch(startFetchAsync()).then()
+        .catch(reason => {
+          console.log(reason);
+        }
+    );
   }
 });
 
