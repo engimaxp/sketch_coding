@@ -54,7 +54,7 @@ describe('Weather test', () => {
                 '}']);
 
         // Dispatch the action
-        (store.dispatch as ThunkDispatch<any, any, AnyAction>)(startFetchAsync()).then(() => {
+        return (store.dispatch as ThunkDispatch<any, any, AnyAction>)(startFetchAsync()).then(() => {
 
             // Test if your store dispatched the expected actions
             const actions = store.getActions();
