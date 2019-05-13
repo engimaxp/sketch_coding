@@ -17,7 +17,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
     - [ ] [React-Motion](https://github.com/chenglou/react-motion) A spring that solves your animation problems.
     - [ ] [react-beautiful-dnd](https://github.com/atlassian/react-beautiful-dnd) Beautiful and accessible drag and drop for lists with React
 
-3. add testing framework [jest](https://github.com/facebook/jest) , [enzyme](https://github.com/airbnb/enzyme) and [sinon](https://github.com/sinonjs/sinon) support reference [this article](https://github.com/the-road-to-learn-react/the-road-to-learn-react-chinese/blob/master/manuscript/chapter4-cn.md)  and [this repo](https://github.com/wfsm/electron-typescript-react-antd-boilerplate/)
+3. add testing framework [jest](https://github.com/facebook/jest) , [enzyme](https://github.com/airbnb/enzyme) , [sinon](https://github.com/sinonjs/sinon) and [nock](https://github.com/nock/nock) support reference [this article](https://github.com/the-road-to-learn-react/the-road-to-learn-react-chinese/blob/master/manuscript/chapter4-cn.md)  and [this repo](https://github.com/wfsm/electron-typescript-react-antd-boilerplate/)
 
 4. add automatic dependency management : [`greenkeeper`](https://greenkeeper.io/) to project
 

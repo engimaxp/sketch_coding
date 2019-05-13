@@ -1,7 +1,7 @@
 import { START_FETCH, SUCCESS_FETCH, FAIL_FETCH } from './action_type';
 import WeatherData from '../../types/Weather';
-import * as superAgent from 'superagent';
-import { Dispatch } from 'redux';
+import superagent from 'superagent';
+import {Dispatch}  from 'redux';
 export type weatherActions = StartFetch | SuccessFetch | FailFetch ;
 interface BaseFetch {
   fail: boolean;
@@ -20,10 +20,11 @@ export interface FailFetch extends BaseFetch {
   type: FAIL_FETCH;
 }
 
-export const startFetchAsync  = () =>
+export const startFetchAsync  = (success: (newWeatherData: WeatherData) => weatherActions,
+                                 fail: (error: string) => weatherActions) =>
     (dispatch: Dispatch<weatherActions>): Promise<void> => {
         dispatch(startFetch());
-        return superAgent.get('https://www.tianqiapi.com/api/?version=v6&cityid=101020100')
+        return superagent.get('https://www.tianqiapi.com/api/?version=v6&cityid=101020100')
             .then((value => {
                 const weather: any = JSON.parse(value.text);
                 const newWeatherData: WeatherData = {
@@ -35,10 +36,10 @@ export const startFetchAsync  = () =>
                     temperature: weather.tem,
                     humidity: weather.humidity,
                 };
-                dispatch(successFetch(newWeatherData));
+                dispatch(success(newWeatherData));
             }))
             .catch(error => {
-                dispatch(failFetch(error.message));
+                dispatch(fail(error.message));
             });
     };
 
@@ -51,13 +52,16 @@ export const startFetch: () => weatherActions = () => ({
 });
 
 export const successFetch: (newWeatherData: WeatherData) => weatherActions =
-    (newWeatherData: WeatherData) => ({
-        type: SUCCESS_FETCH,
-        weather: newWeatherData,
-        fail: false,
-        callEnd: true,
-        errorInfo: null
-    });
+    (newWeatherData: WeatherData) => {
+        console.log(JSON.stringify(newWeatherData));
+        return {
+            type: SUCCESS_FETCH,
+            weather: newWeatherData,
+            fail: false,
+            callEnd: true,
+            errorInfo: null
+        };
+};
 
 export const failFetch: (error: string) => weatherActions =
     (error: string) => ({

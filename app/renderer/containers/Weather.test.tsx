@@ -1,66 +1,61 @@
 import configureStore from 'redux-mock-store';
 import thunk, {ThunkDispatch} from 'redux-thunk';
-import {startFetchAsync, SuccessFetch} from '../actions/weather';
 import {INITIAL_STATE} from '../reducers/weather';
 import {AnyAction} from 'redux';
-import sinon , {SinonFakeServer} from 'sinon';
-import {SUCCESS_FETCH} from '../actions/weather/action_type';
+import sinon from 'sinon';
+import nock from 'nock';
+import {failFetch} from '../actions/weather';
 
 const mockStore = configureStore([thunk]);
 
-let server: SinonFakeServer;
-
 describe('Weather test', () => {
-    beforeEach(() => {
-        server = sinon.fakeServer.create();
-    });
 
     afterEach(() => {
-        server.restore();
+        nock.cleanAll();
+        sinon.restore();
     });
     it('weather fetch async success', () => {
+
+        const weatherAction = require('../actions/weather');
         // Initialize mockStore with empty state
         const store = mockStore(INITIAL_STATE);
-        server.respondWith('GET',
-            'https://www.tianqiapi.com/api/?version=v6&cityid=101020100',
-            [200, { 'Content-Type': 'application/json' },
-                '{\n' +
-                '    "cityid": "101020100",\n' +
-                '    "date": "2019-05-09",\n' +
-                '    "week": "星期四",\n' +
-                '    "update_time": "13:25",\n' +
-                '    "city": "上海",\n' +
-                '    "cityEn": "shanghai",\n' +
-                '    "country": "中国",\n' +
-                '    "countryEn": "China",\n' +
-                '    "wea": "多云",\n' +
-                '    "wea_img": "yun",\n' +
-                '    "tem": "26",\n' +
-                '    "win": "东北风",\n' +
-                '    "win_speed": "1级",\n' +
-                '    "win_meter": "小于12km/h",\n' +
-                '    "humidity": "26%",\n' +
-                '    "visibility": "18.2km",\n' +
-                '    "pressure": "1009",\n' +
-                '    "air": "105",\n' +
-                '    "air_pm25": "105",\n' +
-                '    "air_level": "轻度污染",\n' +
-                '    "air_tips": "儿童、老年人及心脏病、呼吸系统疾病患者应尽量减少体力消耗大的户外活动。",\n' +
-                '    "alarm": {\n' +
-                '        "alarm_type": "",\n' +
-                '        "alarm_level": "",\n' +
-                '        "alarm_content": ""\n' +
-                '    }\n' +
-                '}']);
+        nock('https://www.tianqiapi.com')
+            .get('/api/?version=v6&cityid=101020100').reply(200, {
+            cityid: '101020100',
+            date: '2019-05-09',
+            week: '星期四',
+            update_time: '13:25',
+            city: '上海',
+            cityEn: 'shanghai',
+            country: '中国',
+            countryEn: 'China',
+            wea: '多云',
+            wea_img: 'yun',
+            tem: '26',
+            win: '东北风',
+            win_speed: '1级',
+            win_meter: '小于12km/h',
+            humidity: '26%',
+            visibility: '18.2km',
+            pressure: '1009',
+            air: '105',
+            air_pm25: '105',
+            air_level: '轻度污染',
+            air_tips: '儿童、老年人及心脏病、呼吸系统疾病患者应尽量减少体力消耗大的户外活动。',
+            alarm: {
+                alarm_type: '',
+                alarm_level: '',
+                alarm_content: ''
+            }
+        }, { 'Content-Type': 'application/json' });
 
-        // Dispatch the action
-        return (store.dispatch as ThunkDispatch<any, any, AnyAction>)(startFetchAsync()).then(() => {
+        const callBack = sinon.spy();
 
-            // Test if your store dispatched the expected actions
-            const actions = store.getActions();
-            const expectedPayload: SuccessFetch = {
-                type: SUCCESS_FETCH,
-                weather: {
+        return (store.dispatch as ThunkDispatch<any, any, AnyAction>)(weatherAction
+            .startFetchAsync(callBack, failFetch))
+            .then(() => {
+                // Dispatch the action
+                sinon.assert.calledWith(callBack, {
                     city: '上海',
                     date: '2019-05-09',
                     week: '星期四',
@@ -68,13 +63,7 @@ describe('Weather test', () => {
                     temperature: '26',
                     humidity: '26%',
                     updateTime: '13:25'
-                },
-                fail: false,
-                callEnd: true,
-                errorInfo: null
-            };
-            expect(actions).toEqual([expectedPayload]);
+                });
         });
-
     });
 });
