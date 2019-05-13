@@ -4,7 +4,7 @@ import {INITIAL_STATE} from '../reducers/weather';
 import {AnyAction} from 'redux';
 import sinon from 'sinon';
 import nock from 'nock';
-import {failFetch} from '../actions/weather';
+import {failFetch, successFetch} from '../actions/weather';
 
 const mockStore = configureStore([thunk]);
 
@@ -49,7 +49,7 @@ describe('Weather test', () => {
             }
         }, { 'Content-Type': 'application/json' });
 
-        const callBack = sinon.spy();
+        const callBack = sinon.spy(successFetch);
 
         return (store.dispatch as ThunkDispatch<any, any, AnyAction>)(weatherAction
             .startFetchAsync(callBack, failFetch))
@@ -65,5 +65,23 @@ describe('Weather test', () => {
                     updateTime: '13:25'
                 });
         });
+    });
+    it('weather fetch async fail', () => {
+
+        const weatherAction = require('../actions/weather');
+        // Initialize mockStore with empty state
+        const store = mockStore(INITIAL_STATE);
+        nock('https://www.tianqiapi.com')
+            .get('/api/?version=v6&cityid=101020100')
+            .replyWithError('something awful happened');
+
+        const callBack = sinon.spy(failFetch);
+        return (store.dispatch as ThunkDispatch<any, any, AnyAction>)(weatherAction
+            .startFetchAsync(successFetch, callBack))
+            .then(() => {
+                sinon.assert.calledOnce(callBack);
+                // Dispatch the action
+                sinon.assert.calledWith(callBack, 'something awful happened');
+            });
     });
 });
