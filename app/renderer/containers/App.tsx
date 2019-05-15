@@ -4,18 +4,24 @@ import { RouterState } from '../types';
 import Routes from '../routes';
 import {Helmet} from 'react-helmet';
 
-class App extends Component {
-  render() {
-    return (
-        <div>
-            <Helmet>
-                <meta
-                    name="viewport"
-                    content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no"/>
-            </Helmet>
-          <Routes></Routes>
-        </div>
-    );
+interface LocationProps {
+    location: string;
+}
+
+class App extends Component<LocationProps, any> {
+
+    render() {
+        const {location} = this.props;
+        return (
+            <div>
+                <Helmet>
+                    <meta
+                        name="viewport"
+                        content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no"/>
+                </Helmet>
+                <Routes location={location}/>
+            </div>
+        );
   }
 }
 

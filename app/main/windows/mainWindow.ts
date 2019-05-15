@@ -8,8 +8,8 @@ export default class MainWindow {
 
   createMainWindow() {
     this.mainWindow = new BrowserWindow({
-      height: 600,
-      width: 800,
+      height: 800,
+      width: 1024,
       show: false
     });
   }

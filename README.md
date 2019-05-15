@@ -30,3 +30,5 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 8. add [React-Router]() , [Redux]() , [Redux-thunk]() 
 
 9. add sentry 
+
+10. add [dexie](https://github.com/dfahlander/Dexie.js/) a wrapper library for [indexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) for temp data storage
