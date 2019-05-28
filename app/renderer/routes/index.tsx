@@ -17,10 +17,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import createStyles from '@material-ui/core/styles/createStyles';
 import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles';
 import {Badge} from '@material-ui/core';
-import {findRoute} from './routeMap';
-import Home from '../components/Home';
-import Weather from '../components/Weather';
-import Counter from '../components/Counter';
+import {findRoute, navRoutes} from './routeMap';
 
 const styles = (theme: Theme) => createStyles({
     root: {
@@ -179,9 +176,7 @@ class Routes extends React.Component<LocationWithStyles , NavBarState> {
                     <main className={classes.content}>
                         <div className={classes.appBarSpacer} />
                         <Switch>
-                            <Route path={'/'} component={Home}/>
-                            <Route path={'/counter'} component={Counter}/>
-                            <Route path={'/weather'} component={Weather}/>
+                            {navRouteSwitch}
                         </Switch>
                     </main>
                 </div>
@@ -189,9 +184,9 @@ class Routes extends React.Component<LocationWithStyles , NavBarState> {
         );
     }
 }
-// const navRouteSwitch = (
-//     navRoutes.map(value => (
-//         <Route key={value.key} path={value.location} component={value.containerElement}/>
-//     ))
-// );
+const navRouteSwitch = (
+    navRoutes.map(value => (
+        <Route key={value.key} path={value.location} component={value.containerElement} exact/>
+    ))
+);
 export default withStyles(styles)(Routes);
