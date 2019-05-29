@@ -10,7 +10,7 @@ interface WeatherProps {
 export default class Weather extends Component<WeatherProps> {
 
     componentDidMount(): void {
-        if ( !this.props.isFetching) {
+        if ( !this.props.isFetching && !this.props.weatherProp ) {
             this.props.startFetch();
         }
     }
