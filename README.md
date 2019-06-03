@@ -32,3 +32,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 9. add sentry 
 
 10. add [dexie](https://github.com/dfahlander/Dexie.js/) a wrapper library for [indexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) for temp data storage
+
+11. add [pako]() a js zlib implement used for gzip and ungzip
+
+12. add [simple-git](https://github.com/steveukx/git-js) for vsc control

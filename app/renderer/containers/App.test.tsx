@@ -7,6 +7,8 @@ import {Provider} from 'react-redux';
 import { shallow , mount } from 'enzyme';
 import * as sinon from 'sinon';
 import pako from 'pako';
+import simplegit from 'simple-git/promise';
+import {StatusResult} from 'simple-git/typings/response';
 
 const store = configureStore();
 it('renders without crashing', () => {
@@ -48,5 +50,9 @@ describe('Enzyme Shallow', () => {
         const a = pako.gzip(punzipstr, { to: 'string' } );
         console.log(a);
         console.log(btoa(a));
+    });
+    it('git', () => {
+        const git = simplegit();
+        git.status().then((status: StatusResult) => {  });
     });
 });
