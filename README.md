@@ -35,4 +35,4 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 11. add [pako]() a js zlib implement used for gzip and ungzip
 
-12. add [simple-git](https://github.com/steveukx/git-js) for vsc control
+12. add [isomorphic-git](https://github.com/isomorphic-git/isomorphic-git) for vsc control
