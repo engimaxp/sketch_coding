@@ -1,4 +1,5 @@
 import Home from '../components/Home';
+import Login from '../components/Login';
 import Counter from '../containers/counter';
 import Weather from '../containers/weather';
 
@@ -14,8 +15,13 @@ interface RouteMap {
     icon?: any;
 }
 
+export const indexPage: RouteMap = {
+    key: 0, location: '/', isOnNav: false, title: 'Login', containerElement: Login, icon: DashboardIcon
+};
+
 export const globalRoutes: RouteMap[] = [
-    {key: 1, location: '/', isOnNav: true, title: 'Home', containerElement: Home, icon: DashboardIcon},
+    indexPage,
+    {key: 1, location: '/home', isOnNav: true, title: 'Home', containerElement: Home, icon: DashboardIcon},
     {key: 2, location: '/counter', isOnNav: true, title: 'Counter',
         containerElement: Counter, icon: ShoppingCartIcon},
     {key: 3, location: '/weather', isOnNav: true, title: 'Weather', containerElement: Weather, icon: PeopleIcon},

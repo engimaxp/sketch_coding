@@ -10,12 +10,12 @@ interface LinkListItemProps extends ListItemProps {
 }
 
 const LinkListItem = (props: LinkListItemProps) => (
-    <ListItem button{...props} component={Link as any} />
+    <ListItem component={Link as any} />
 );
 
 const navItems = (
     navRoutes.map(value => (
-        <LinkListItem  key={value.key} button component={LinkListItem as any} to={value.location}>
+        <LinkListItem  key={value.key} component={LinkListItem as any} to={value.location}>
             <ListItemIcon>
                 {<value.icon />}
             </ListItemIcon>
