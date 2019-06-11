@@ -2,7 +2,6 @@ import React, { Fragment } from 'react';
 import {Route, Switch} from 'react-router';
 import NavBar from '../components/NavBar';
 import Drawer from '@material-ui/core/Drawer';
-import NotificationsIcon from '@material-ui/icons/Notifications';
 import AppBar from '@material-ui/core/AppBar';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -17,8 +16,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import SettingsIcon from '@material-ui/icons/Settings';
 import createStyles from '@material-ui/core/styles/createStyles';
 import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles';
-import {Badge} from '@material-ui/core';
-import {findRoute, navRoutes} from './routeMap';
+import {findRoute, indexPage, navRoutes} from './routeMap';
 import {connect} from 'react-redux';
 import {RouterState} from '../types';
 import {ThunkDispatch} from 'redux-thunk';
@@ -37,7 +35,7 @@ const styles = (theme: Theme) => createStyles({
         alignItems: 'center',
         justifyContent: 'flex-end',
         padding: '0 8px',
-        ...theme.mixins.toolbar,
+        minHeight: 48
     },
     appBar: {
         zIndex: theme.zIndex.drawer + 1,
@@ -55,7 +53,8 @@ const styles = (theme: Theme) => createStyles({
         }),
     },
     menuButton: {
-        marginRight: 36,
+        marginLeft: 0,
+        marginRight: theme.spacing(2),
     },
     menuButtonHidden: {
         display: 'none',
@@ -86,7 +85,9 @@ const styles = (theme: Theme) => createStyles({
     notificationIcon: {
         marginRight: theme.spacing(-2)
     },
-    appBarSpacer: theme.mixins.toolbar,
+    appBarSpacer: {
+        minHeight: 48
+    },
     content: {
         flexGrow: 1,
         height: '100vh',
@@ -144,7 +145,7 @@ class Routes extends React.Component<LocationWithStyles , NavBarState> {
                         position="absolute"
                         className={classNames(classes.appBar, this.state.open && classes.appBarShift)}
                     >
-                        <Toolbar disableGutters={!this.state.open} className={classes.toolbar}>
+                        <Toolbar disableGutters={!this.state.open} variant={'dense'} className={classes.toolbar}>
                             <IconButton
                                 color="inherit"
                                 aria-label="Open drawer"
@@ -165,11 +166,6 @@ class Routes extends React.Component<LocationWithStyles , NavBarState> {
                             >
                                 {findRoute(pathname)}
                             </Typography>
-                            <IconButton color="inherit">
-                                <Badge badgeContent={1} color="secondary">
-                                    <NotificationsIcon />
-                                </Badge>
-                            </IconButton>
                             <IconButton color="inherit" className={classes.notificationIcon}
                                         onClick={this.backToIndex}
                             >
@@ -185,7 +181,8 @@ class Routes extends React.Component<LocationWithStyles , NavBarState> {
                         open={this.state.open}
                     >
                         <div className={classes.toolbarIcon}>
-                            <IconButton onClick={this.handleDrawerClose}>
+                            <IconButton onClick={this.handleDrawerClose}
+                                        size={'small'}>
                                 <ChevronLeftIcon />
                             </IconButton>
                         </div>
@@ -218,7 +215,7 @@ const mapStateToProps = (state: RouterState) => ({
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
     backToIndex: () => {
-        dispatch(push('/'));
+        dispatch(push(indexPage.location));
     }
 });
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Routes));

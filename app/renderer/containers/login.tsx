@@ -4,6 +4,7 @@ import { StoreState} from '../types';
 import Login from '../components/Login';
 import {ThunkDispatch} from 'redux-thunk';
 import { push } from 'connected-react-router';
+import {nestedIndexPage} from '../routes/routeMap';
 const mapStateToProps = (state: StoreState) => ({
   weatherProp: state.weather.weather,
   isFetching: state.weather.isFetching
@@ -11,7 +12,7 @@ const mapStateToProps = (state: StoreState) => ({
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
   startFetch: () => {
-    dispatch(push('/main/home'));
+    dispatch(push(nestedIndexPage.link));
   }
 });
 

@@ -2,7 +2,7 @@ import { app, Menu } from 'electron';
 import path from 'path';
 import url from 'url';
 import MainWindow from './windows/mainWindow';
-import { mainMenu } from './menu';
+// import { mainMenu } from './menu';
 import TrayCreator from './tray';
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -28,7 +28,8 @@ class Electron {
     app.on('ready', async () => {
       this.createMainWindow();
       this.mainWindowInstance.loadURL(indexUrl);
-      Menu.setApplicationMenu(mainMenu);
+      // Menu.setApplicationMenu(mainMenu);
+      Menu.setApplicationMenu(null);
       const appIconPath = path.join(__dirname, './assets/electron.png');
       const tray = new TrayCreator(appIconPath);
       tray.initTray();

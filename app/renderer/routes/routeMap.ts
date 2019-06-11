@@ -20,10 +20,14 @@ export const indexPage: RouteMap = {
     title: 'Login', containerElement: Login, icon: DashboardIcon
 };
 
+export const nestedIndexPage: RouteMap = {
+    link: '/main/home', location: '/main/home', isOnNav: true,
+    title: 'Home', containerElement: Home, icon: DashboardIcon
+};
+
 export const globalRoutes: RouteMap[] = [
     indexPage,
-    {link: '/main/home', location: '/main/home', isOnNav: true,
-        title: 'Home', containerElement: Home, icon: DashboardIcon},
+    nestedIndexPage,
     {link: '/main/counter', location: '/main/counter', isOnNav: true, title: 'Counter',
         containerElement: Counter, icon: ShoppingCartIcon},
     {link: '/main/weather', location: '/main/weather', isOnNav: true,
