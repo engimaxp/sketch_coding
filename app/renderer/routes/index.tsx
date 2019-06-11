@@ -53,7 +53,7 @@ const styles = (theme: Theme) => createStyles({
         }),
     },
     menuButton: {
-        marginLeft: 0,
+        marginLeft: theme.spacing(0.5),
         marginRight: theme.spacing(2),
     },
     menuButtonHidden: {
