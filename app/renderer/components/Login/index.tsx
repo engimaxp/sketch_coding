@@ -54,6 +54,7 @@ const useStyles = (theme: Theme) => createStyles({
 
 interface LoginWithStyles extends WithStyles<typeof useStyles> {
     location: string;
+    startFetch: () => void;
 }
 interface LoginState {
     open: boolean;
@@ -66,6 +67,11 @@ class Login extends React.Component<LoginWithStyles , LoginState> {
             open: false
         };
     }
+
+    handleSubmit = () => {
+        this.props.startFetch();
+        // somewhere like a redux/flux action file:
+    };
     render(): React.ReactNode {
         const {classes} = this.props;
 
@@ -112,6 +118,7 @@ class Login extends React.Component<LoginWithStyles , LoginState> {
                             variant="contained"
                             color="primary"
                             className={classes.submit}
+                            onClick={this.handleSubmit}
                         >
                             Sign In
                         </Button>

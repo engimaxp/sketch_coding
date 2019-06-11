@@ -1,26 +1,13 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { RouterState } from '../types';
 import Routes from '../routes';
 import {Helmet} from 'react-helmet';
 import {indexPage} from '../routes/routeMap';
-import {Route} from 'react-router';
+import {Switch , Route} from 'react-router';
+import noMatch from './nomatch';
 
-interface LocationProps {
-    location: string;
-}
-
-class App extends Component<LocationProps, any> {
+class App extends Component {
 
     render() {
-        const {location} = this.props;
-        let item: (JSX.Element | Array<JSX.Element | undefined>);
-        if (true) {
-            item = (<Route key={indexPage.key} path={indexPage.location}
-                           render={() => <indexPage.containerElement />} exact/>);
-        } else {
-            item = (<Routes location={location}/>);
-        }
         return (
             <div>
                 <Helmet>
@@ -28,16 +15,15 @@ class App extends Component<LocationProps, any> {
                         name="viewport"
                         content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no"/>
                 </Helmet>
-                {item}
+                <Switch>
+                    <Route path={indexPage.location}
+                           render={() => <indexPage.containerElement />} exact/>
+                    <Route path={'/main/:param1'} component={Routes} />
+                    <Route component={noMatch}/>
+                </Switch>
             </div>
         );
   }
 }
 
-function mapStateToProps(state: RouterState) {
-  return {
-    location: state.router.location.pathname
-  };
-}
-
-export default connect(mapStateToProps)(App);
+export default App;

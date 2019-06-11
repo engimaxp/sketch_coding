@@ -14,10 +14,16 @@ import IconButton from '@material-ui/core/IconButton';
 import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import SettingsIcon from '@material-ui/icons/Settings';
 import createStyles from '@material-ui/core/styles/createStyles';
 import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles';
 import {Badge} from '@material-ui/core';
 import {findRoute, navRoutes} from './routeMap';
+import {connect} from 'react-redux';
+import {RouterState} from '../types';
+import {ThunkDispatch} from 'redux-thunk';
+import {AnyAction} from 'redux';
+import {push} from 'connected-react-router';
 
 const styles = (theme: Theme) => createStyles({
     root: {
@@ -77,6 +83,9 @@ const styles = (theme: Theme) => createStyles({
             width: theme.spacing(9),
         },
     },
+    notificationIcon: {
+        marginRight: theme.spacing(-2)
+    },
     appBarSpacer: theme.mixins.toolbar,
     content: {
         flexGrow: 1,
@@ -99,7 +108,10 @@ const styles = (theme: Theme) => createStyles({
 });
 
 interface LocationWithStyles extends WithStyles<typeof styles> {
-    location: string;
+    pathname: string;
+    search: string;
+    hash: string;
+    backToIndex: () => void;
 }
 
 interface NavBarState {
@@ -116,12 +128,14 @@ class Routes extends React.Component<LocationWithStyles , NavBarState> {
     handleDrawerOpen = () => {
         this.setState({ open: true });
     };
-
+    backToIndex = () => {
+        this.props.backToIndex();
+    };
     handleDrawerClose = () => {
         this.setState({ open: false });
     };
     render(): React.ReactNode {
-        const { classes , location} = this.props;
+        const { classes , pathname} = this.props;
         return (
             <Fragment>
                 <div className={classes.root}>
@@ -149,12 +163,17 @@ class Routes extends React.Component<LocationWithStyles , NavBarState> {
                                 noWrap
                                 className={classes.title}
                             >
-                                {findRoute(location)}
+                                {findRoute(pathname)}
                             </Typography>
                             <IconButton color="inherit">
-                                <Badge badgeContent={4} color="secondary">
+                                <Badge badgeContent={1} color="secondary">
                                     <NotificationsIcon />
                                 </Badge>
+                            </IconButton>
+                            <IconButton color="inherit" className={classes.notificationIcon}
+                                        onClick={this.backToIndex}
+                            >
+                                <SettingsIcon />
                             </IconButton>
                         </Toolbar>
                     </AppBar>
@@ -187,8 +206,19 @@ class Routes extends React.Component<LocationWithStyles , NavBarState> {
     }
 }
 const navRouteSwitch = (
-    navRoutes.map(value => (
-        <Route key={value.key} path={value.location} component={value.containerElement} exact/>
+    navRoutes.map((value, index) => (
+        <Route key={index} path={value.location} component={value.containerElement} exact/>
     ))
 );
-export default withStyles(styles)(Routes);
+const mapStateToProps = (state: RouterState) => ({
+    pathname: state.router.location.pathname,
+    search: state.router.location.search,
+    hash: state.router.location.hash,
+});
+
+const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
+    backToIndex: () => {
+        dispatch(push('/'));
+    }
+});
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Routes));
