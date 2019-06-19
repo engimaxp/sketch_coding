@@ -11,7 +11,7 @@ const mapStateToProps = (state: StoreState) => ({
 });
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
-  startFetch: () => {
+    successRedirect: () => {
     dispatch(push(nestedIndexPage.link));
   }
 });
