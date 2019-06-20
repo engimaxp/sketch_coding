@@ -10,6 +10,7 @@ const useStyles = (theme: Theme) => createStyles({
     pinContainer: {
         display: 'flex',
         alignItems: 'center',
+        justifyContent: 'center',
         flex: 1
     },
 });
@@ -24,16 +25,32 @@ interface PinCodeState {
     valueArray: string[];
 }
 
+const initialState: (pinSize: number) => PinCodeState = (pinSize: number) => {
+    const selectArray = _.fill(Array<boolean>(pinSize), false);
+    const focusArray = _.fill(Array<boolean>(pinSize), false);
+    const valueArray = _.fill(Array<string>(pinSize), '');
+    focusArray[0] = true;
+    return {selectArray, focusArray, valueArray};
+};
+
 class PinCode extends React.Component<PinCodePropsWithStyles, PinCodeState> {
 
     constructor(props: PinCodePropsWithStyles) {
         super(props);
-        const selectArray = _.fill(Array<boolean>(this.props.pinSize), false);
-        const focusArray = _.fill(Array<boolean>(this.props.pinSize), false);
-        const valueArray = _.fill(Array<boolean>(this.props.pinSize), '');
-        focusArray[0] = true;
-        this.state = {selectArray, focusArray, valueArray};
+        this.state = initialState(this.props.pinSize);
     }
+    validAndSubmit = (index: number) => {
+        if (this.state.valueArray.every(value => value !== '')) {
+            if (this.state.valueArray.every((value, index1) => value === index1.toString())) {
+                // todo replace this to actual pin code validation function
+                console.log('success');
+            } else {
+                this.setState(initialState(this.props.pinSize), () => {
+                    console.log('valueArray:' + this.state.valueArray);
+                });
+            }
+        }
+    };
     render() {
         const {classes, pinSize} = this.props;
         const {selectArray, focusArray, valueArray} = this.state;
@@ -43,12 +60,13 @@ class PinCode extends React.Component<PinCodePropsWithStyles, PinCodeState> {
                           focus={focusArray[index]}
                           select={selectArray[index]}
                           index={index}
+                          val={valueArray[index]}
                           submit={
                     (code: string|null) => {
                         const newValueArray = Array.from(valueArray);
                         const newFocusArray = Array.from(focusArray);
                         const newSelectArray = Array.from(selectArray);
-                        if (code !== null) {
+                        if (!!code) {
                             console.log('code:' + code + 'index:' + index);
                             newValueArray[index] = code;
                             newFocusArray[index] = false;
@@ -62,9 +80,7 @@ class PinCode extends React.Component<PinCodePropsWithStyles, PinCodeState> {
                                 selectArray: newSelectArray,
                                 valueArray: newValueArray
                             }, () => {
-                                console.log('valueArray:' + this.state.valueArray);
-                                console.log('selectArray:' + this.state.selectArray);
-                                console.log('focusArray:' + this.state.focusArray);
+                                this.validAndSubmit(index);
                             });
                         }
                     }

@@ -65,10 +65,10 @@ class Login extends React.Component<LoginWithStyles> {
                     <Avatar className={classes.avatar}>
                         <FingerprintIcon fontSize={'large'}/>
                     </Avatar>
-                    <Typography component={'h1' as any} variant="h3">
+                    <Typography component={'h1' as any} variant="h4">
                         Pin Code
                     </Typography>
-                    <PinCode pinSize={6} submit={() => {}}/>
+                    <PinCode pinSize={4} submit={(code: string) => {}}/>
                 </Box>
             </Container>
         );
