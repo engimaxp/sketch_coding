@@ -9,6 +9,7 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import Container from '@material-ui/core/Container';
 import Box from '@material-ui/core/Box';
 import PinCode from '../PinCode';
+import {settings} from '../../constants';
 
 const useStyles = (theme: Theme) => createStyles({
     '@global': {
@@ -68,7 +69,7 @@ class Login extends React.Component<LoginWithStyles> {
                     <Typography component={'h1' as any} variant="h4">
                         Pin Code
                     </Typography>
-                    <PinCode pinSize={4} submit={(code: string) => {}}/>
+                    <PinCode pinSize={settings.pinSize} submit={(code: string) => {}}/>
                 </Box>
             </Container>
         );

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Routes from '../routes';
 import {Helmet} from 'react-helmet';
-import {indexPage} from '../routes/routeMap';
+import {indexPage, registerPage} from '../routes/routeMap';
 import {Switch , Route} from 'react-router';
 import noMatch from './nomatch';
 
@@ -18,6 +18,8 @@ class App extends Component {
                 <Switch>
                     <Route path={indexPage.location}
                            render={() => <indexPage.containerElement />} exact/>
+                    <Route path={registerPage.location}
+                           render={() => <registerPage.containerElement />} exact/>
                     <Route path={'/main/:param1'} component={Routes} />
                     <Route component={noMatch}/>
                 </Switch>

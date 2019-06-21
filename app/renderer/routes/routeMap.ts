@@ -2,7 +2,7 @@ import Home from '../components/Home';
 import Login from '../containers/login';
 import Counter from '../containers/counter';
 import Weather from '../containers/weather';
-
+import Register from '../components/Register';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import PeopleIcon from '@material-ui/icons/People';
@@ -16,8 +16,14 @@ interface RouteMap {
 }
 
 export const indexPage: RouteMap = {
-    link: '/', location: '/', isOnNav: false,
+    // link: '/', location: '/', isOnNav: false,
+    link: '/register', location: '/register', isOnNav: false,
     title: 'Login', containerElement: Login, icon: DashboardIcon
+};
+export const registerPage: RouteMap = {
+    // link: '/register', location: '/register', isOnNav: false,
+    link: '/', location: '/', isOnNav: false,
+    title: 'Register', containerElement: Register, icon: DashboardIcon
 };
 
 export const nestedIndexPage: RouteMap = {
