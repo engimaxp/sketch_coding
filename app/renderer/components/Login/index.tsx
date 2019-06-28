@@ -69,7 +69,7 @@ class Login extends React.Component<LoginWithStyles> {
                     <Typography component={'h1' as any} variant="h4">
                         Pin Code
                     </Typography>
-                    <PinCode pinSize={settings.pinSize} submit={(code: string) => {}}/>
+                    <PinCode pinSize={settings.pinSize} submit={(code: string) => console.log(code)}/>
                 </Box>
             </Container>
         );

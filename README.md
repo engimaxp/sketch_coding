@@ -36,3 +36,5 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 11. add [pako]() a js zlib implement used for gzip and ungzip
 
 12. add [isomorphic-git](https://github.com/isomorphic-git/isomorphic-git) for vsc control
+
+13. add [react-select-material-ui](https://github.com/iulian-radu-at/react-select-material-ui) for material-ui auto complete select control

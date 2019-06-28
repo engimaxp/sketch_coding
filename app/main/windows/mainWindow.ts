@@ -10,7 +10,8 @@ export default class MainWindow {
     this.mainWindow = new BrowserWindow({
       height: 800,
       width: 1024,
-      show: false
+      show: false,
+      webPreferences: {webSecurity: false},
     });
   }
 

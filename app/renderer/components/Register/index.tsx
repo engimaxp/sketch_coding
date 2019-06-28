@@ -14,7 +14,8 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import superagent from 'superagent';
 import {Snackbar} from '@material-ui/core';
 import MySnackbarContentWrapper from '../Common/MySnackbarContentWrapper';
-
+import fs from 'fs';
+import * as git from 'isomorphic-git';
 const useStyles = (theme: Theme) => createStyles({
     layout: {
         width: 'auto',
@@ -60,10 +61,15 @@ interface RegisterFormState {
     activeStep: number;
     errorInfo: string;
     loginName?: string;
+    nickName?: string;
+    rememberPassword?: boolean;
+    avatarImage?: string;
+    pinCode?: string;
     password?: string;
     errorPop: boolean;
     userPublicRepo?: GithubRepo[];
     targetRepo?: GithubRepo;
+    localPath?: string;
     loading: boolean;
 }
 interface GithubRepo {
@@ -77,42 +83,74 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
     constructor(props: Readonly<RegisterWithStyles>) {
         super(props);
         this.state = {
-            activeStep: 0,
+            activeStep: 2,
             errorInfo: '',
             errorPop: false,
             loading: false
         };
     }
-    changeUserInfo = (loginName: string|null, loginPassword: string|null) => {
+    changeUserInfo = (loginName: string|null, loginPassword: string|null, rememberPassword: boolean|null) => {
         if (loginName !== null) {
             this.setState({loginName});
         }
         if (loginPassword !== null) {
             this.setState({password: loginPassword});
         }
+        if (rememberPassword !== null) {
+            this.setState({rememberPassword});
+        }
+    };
+    changeRepoInfo = (repoTarget: string|null, localPath: string|null) => {
+        if (repoTarget !== null) {
+            const targetRepo = this.state.userPublicRepo!.find(value => value.name === repoTarget);
+            this.setState({targetRepo});
+        }
+        if (localPath !== null) {
+            this.setState({localPath});
+        }
     };
     getStepContent = () => {
         switch (this.state.activeStep) {
             case 0:
-                return <VcsUserForm change={this.changeUserInfo}/>;
+                return <VcsUserForm
+                    change={this.changeUserInfo}
+                />;
             case 1:
-                return <VcsRepoForm />;
+                return <VcsRepoForm
+                    change={this.changeRepoInfo}
+                    repos={
+                    this.state.userPublicRepo === undefined ? [] :
+                        this.state.userPublicRepo!.map(value => value.name)
+                }/>;
             case 2:
-                return <VcsPinSetForm />;
+                return <VcsPinSetForm
+                    completeSet={(pinCode: string) => this.setState({pinCode}, () => console.log(this.state))}
+                />;
             default:
                 throw new Error('Unknown step');
         }
     };
+
     validGithub = async (loginName?: string, loginPassword?: string) => {
         if (loginName === undefined || loginPassword === undefined) {
             this.error('loginName or Password not added');
             return;
         }
+        console.log(`${loginName},${loginPassword}`);
         this.setState({loading: true});
-        const githubUserResult = await superagent.get('https://api.github.com/user')
-            .auth(loginName, loginPassword).timeout({
-                response: 5000,  // Wait 5 seconds for the server to start sending,
-            });
+        let githubUserResult: any;
+        try {
+            githubUserResult = await superagent
+                .get('https://api.github.com/user')
+                .auth(loginName, loginPassword)
+                .set('user-agent', 'node.js')
+                .timeout({response: 30000});
+        } catch (e) {
+            console.log('get user error');
+            console.log(e);
+            this.setState({loading: false});
+            return;
+        }
         if (githubUserResult.status !== 200) {
             this.error('githubUser request to github failure');
             console.log(githubUserResult);
@@ -126,10 +164,23 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
             this.setState({loading: false});
             return;
         }
-        const githubReposResult = await superagent.get(githubUser.repos_url)
-            .auth(loginName, loginPassword).timeout({
-                response: 5000,  // Wait 5 seconds for the server to start sending,
-            });
+        this.setState({
+            nickName: githubUser.name,
+            avatarImage: githubUser.avatar_url
+        });
+        let githubReposResult: any;
+        try {
+            githubReposResult = await superagent
+                .get(githubUser.repos_url)
+                .auth(loginName, loginPassword)
+                .set('user-agent', 'node.js')
+                .timeout({response: 30000});
+        } catch (e) {
+            console.log('get repo error');
+            console.log(e);
+            this.setState({loading: false});
+            return;
+        }
 
         if (githubReposResult.status !== 200) {
             this.error('githubRepos request to github failure');
@@ -137,14 +188,13 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
             this.setState({loading: false});
             return;
         }
-        let githubRepos: GithubRepo[] = JSON.parse(githubReposResult.text);
+        const githubRepos: GithubRepo[] = JSON.parse(githubReposResult.text);
         if (!(githubRepos && githubRepos.length > 0)) {
             this.error('githubRepos request to github no repos');
             console.log(githubUserResult);
             this.setState({loading: false});
             return;
         }
-        githubRepos = githubRepos.filter(value => !value.private);
         if (!(githubRepos && githubRepos.length > 0)) {
             this.error('githubRepos request to github no public repos');
             console.log(githubUserResult);
@@ -157,6 +207,47 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
             console.log(this.state.userPublicRepo);
         });
     };
+    cloneFromGithub = async (targetRepo?: GithubRepo, localPath?: string) => {
+        const {loginName, password, nickName} = this.state;
+        if (loginName === undefined || password === undefined) {
+            this.error('loginName or Password not added');
+            return;
+        }
+        if (targetRepo === undefined || localPath === undefined) {
+            this.error('targetRepo or localPath not defined');
+            return;
+        }
+        this.setState({loading: true});
+        const userDir = localPath;
+        try {
+            git.plugins.set('fs', fs);
+            if (!await fs.existsSync(userDir)) {
+                await fs.mkdirSync(userDir);
+            }
+            await git.clone({
+                dir: userDir,
+                url: targetRepo.clone_url,
+                ref: targetRepo.default_branch,
+                singleBranch: true,
+                depth: 10
+            });
+            await git.config({
+                dir: userDir,
+                path: 'user.name',
+                value: nickName
+            });
+            await git.config({
+                dir: userDir,
+                path: 'user.email',
+                value: loginName
+            });
+        } catch (e) {
+            console.log(e);
+            this.error(e.message);
+        }
+        this.setState({loading: false});
+    };
+
     error = (error: string) => {
         this.setState({
             errorPop: true,
@@ -174,8 +265,15 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
                 });
                 break;
             }
-            case 1:
+            case 1: {
+                const {targetRepo, localPath} = this.state;
+                this.cloneFromGithub(targetRepo, localPath).then(value => {
+                    this.setState((prevState) => {
+                        return {activeStep: prevState!.activeStep + 1};
+                    });
+                });
                 break;
+            }
             case 2:
                 break;
             default:
@@ -201,7 +299,7 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
                 <CssBaseline />
                 <main className={classes.layout}>
                     <Paper className={classes.paper}>
-                        <Typography component="h1" variant="h4" align="center">
+                        <Typography component={'h1' as any} variant="h4" align="center">
                             VCS settings
                         </Typography>
                         <Stepper activeStep={activeStep} className={classes.stepper}>
@@ -230,6 +328,7 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
                                                 Back
                                             </Button>
                                         )}
+                                        {activeStep !== 2 ? (
                                         <Button
                                             variant="contained"
                                             color="primary"
@@ -238,6 +337,7 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
                                         >
                                             {loading ? 'Loading...' : 'Next'}
                                         </Button>
+                                        ) : null}
                                     </div>
                                 </React.Fragment>
                             )}

@@ -17,6 +17,7 @@ const useStyles = (theme: Theme) => createStyles({
 
 interface PinCodePropsWithStyles extends WithStyles<typeof useStyles> {
     pinSize: number;
+    reset?: number;
     submit: (code: string) => void;
 }
 interface PinCodeState {
@@ -39,16 +40,18 @@ class PinCode extends React.Component<PinCodePropsWithStyles, PinCodeState> {
         super(props);
         this.state = initialState(this.props.pinSize);
     }
+
+    componentWillUpdate(nextProps: Readonly<PinCodePropsWithStyles>,
+                        nextState: Readonly<PinCodeState>, nextContext: any): void {
+        if (this.props.reset && nextProps.reset && nextProps.reset !== this.props.reset) {
+            console.log(nextProps.reset);
+            this.setState(initialState(this.props.pinSize));
+        }
+    }
+
     validAndSubmit = (index: number) => {
         if (this.state.valueArray.every(value => value !== '')) {
-            if (this.state.valueArray.every((value, index1) => value === index1.toString())) {
-                // todo replace this to actual pin code validation function
-                console.log('success');
-            } else {
-                this.setState(initialState(this.props.pinSize), () => {
-                    console.log('valueArray:' + this.state.valueArray);
-                });
-            }
+            this.props.submit(this.state.valueArray.join(''));
         }
     };
     render() {
@@ -61,6 +64,7 @@ class PinCode extends React.Component<PinCodePropsWithStyles, PinCodeState> {
                           select={selectArray[index]}
                           index={index}
                           val={valueArray[index]}
+                          totalSize={pinSize}
                           submit={
                     (code: string|null) => {
                         const newValueArray = Array.from(valueArray);
