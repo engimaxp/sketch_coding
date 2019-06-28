@@ -1,6 +1,6 @@
 > A Learning Project for front-end stack mainly use electron typescript and react
 
-[![Build Status](https://travis-ci.org/engimaxp/sketch_coding.svg?branch=master)](https://travis-ci.org/engimaxp/sketch_coding) [![Greenkeeper badge](https://badges.greenkeeper.io/engimaxp/sketch_coding.svg)](https://greenkeeper.io/)
+[![Build Status](https://travis-ci.org/engimaxp/sketch_coding.svg?branch=master)](https://travis-ci.org/engimaxp/sketch_coding)
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
