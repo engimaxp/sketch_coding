@@ -4,6 +4,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Paper from '@material-ui/core/Paper';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
+import Grid from '@material-ui/core/Grid';
 import StepLabel from '@material-ui/core/StepLabel';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
@@ -83,7 +84,7 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
     constructor(props: Readonly<RegisterWithStyles>) {
         super(props);
         this.state = {
-            activeStep: 0,
+            activeStep: 2,
             errorInfo: '',
             errorPop: false,
             loading: false,
@@ -329,10 +330,26 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
                         <React.Fragment>
                             {activeStep === steps.length ? (
                                 <React.Fragment>
-                                    <Typography variant="subtitle1"  align="center">
-                                        All set, launching...
-                                    </Typography>
-                                    <LinearProgress />
+                                    <Grid container spacing={3}
+                                          style={{
+                                              display: 'flex',
+                                              flexDirection: 'column',
+                                              alignItems: 'center',
+                                          }}
+                                    >
+                                        <Typography variant="h5"  align="center"
+                                                    style={{
+                                                        marginTop: 128,
+                                                    }}
+                                        >
+                                            All set, launching...
+                                        </Typography>
+                                        <LinearProgress style={{
+                                            marginTop: 32,
+                                            marginBottom: 32,
+                                            width: '80%'
+                                        }}/>
+                                    </Grid>
                                 </React.Fragment>
                             ) : (
                                 <React.Fragment>
