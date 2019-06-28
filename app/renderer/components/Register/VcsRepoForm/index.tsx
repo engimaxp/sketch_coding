@@ -7,17 +7,23 @@ import os from 'os';
 interface RepoFormProperty {
     repos: string[];
     change: (repoTarget: string|null, localPath: string|null) => void;
+    nickName?: string;
 }
 interface RepoFormState {
     repoTarget: string|null;
     localPath: string|null;
 }
+
+const getDefaultLocalPath = (nickName?: string, repoSelect?: string) => {
+    return `${os.homedir()}\\${nickName ? nickName : 'sketch_nickName'}_${repoSelect ? repoSelect : 'repo'}`;
+};
+
 export default class VcsRepoForm extends React.Component<RepoFormProperty, RepoFormState> {
 
     constructor(props: Readonly<RepoFormProperty>) {
         super(props);
         const defaultRepo = null;
-        const defaultLocalPath = os.homedir() + '\\sketch_code_repo';
+        const defaultLocalPath = getDefaultLocalPath(this.props.nickName);
         this.state = {
             repoTarget: defaultRepo,
             localPath: defaultLocalPath
@@ -30,10 +36,11 @@ export default class VcsRepoForm extends React.Component<RepoFormProperty, RepoF
 
     handleChange = (value: string) => {
         console.log(value);
-        this.setState({repoTarget: value});
+        this.setState({repoTarget: value, localPath: getDefaultLocalPath(this.props.nickName, value)});
         this.props.change(value, null);
     };
     localPathChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        this.setState({localPath: event.target.value});
         this.props.change(null, event.target.value);
     };
     render(): React.ReactNode {

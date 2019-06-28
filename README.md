@@ -1,4 +1,4 @@
-> A Learning Project for front-end stack mainly use electron typescript and react
+> A Learning Project for front-end stack mainly use electron typescript and react (currently WIP)
 
 [![Build Status](https://travis-ci.org/engimaxp/sketch_coding.svg?branch=master)](https://travis-ci.org/engimaxp/sketch_coding)
 

@@ -16,6 +16,7 @@ import {Snackbar} from '@material-ui/core';
 import MySnackbarContentWrapper from '../Common/MySnackbarContentWrapper';
 import fs from 'fs';
 import * as git from 'isomorphic-git';
+import LinearProgress from '@material-ui/core/LinearProgress';
 const useStyles = (theme: Theme) => createStyles({
     layout: {
         width: 'auto',
@@ -51,8 +52,6 @@ const useStyles = (theme: Theme) => createStyles({
     },
 });
 
-const steps = ['Github Account', 'Select Repository', 'Setting Pin Code'];
-
 interface RegisterWithStyles extends WithStyles<typeof useStyles> {
     successRedirect: () => void;
 }
@@ -71,6 +70,7 @@ interface RegisterFormState {
     targetRepo?: GithubRepo;
     localPath?: string;
     loading: boolean;
+    steps: string[];
 }
 interface GithubRepo {
     private: boolean;
@@ -83,10 +83,11 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
     constructor(props: Readonly<RegisterWithStyles>) {
         super(props);
         this.state = {
-            activeStep: 2,
+            activeStep: 0,
             errorInfo: '',
             errorPop: false,
-            loading: false
+            loading: false,
+            steps: ['Github Account', 'Select Repository', 'Setting Pin Code']
         };
     }
     changeUserInfo = (loginName: string|null, loginPassword: string|null, rememberPassword: boolean|null) => {
@@ -97,7 +98,16 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
             this.setState({password: loginPassword});
         }
         if (rememberPassword !== null) {
-            this.setState({rememberPassword});
+            this.setState({rememberPassword}, () => {
+                let steps = this.state.steps;
+                if (this.state.rememberPassword && steps.length === 2) {
+                    steps.push('Setting Pin Code');
+                } else if (this.state.rememberPassword !== undefined
+                    && !this.state.rememberPassword && steps.length > 2) {
+                    steps = steps.slice(0, 2);
+                }
+                this.setState({steps});
+            });
         }
     };
     changeRepoInfo = (repoTarget: string|null, localPath: string|null) => {
@@ -117,6 +127,7 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
                 />;
             case 1:
                 return <VcsRepoForm
+                    nickName={this.state.nickName}
                     change={this.changeRepoInfo}
                     repos={
                     this.state.userPublicRepo === undefined ? [] :
@@ -124,7 +135,10 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
                 }/>;
             case 2:
                 return <VcsPinSetForm
-                    completeSet={(pinCode: string) => this.setState({pinCode}, () => console.log(this.state))}
+                    completeSet={(pinCode: string) => this.setState({pinCode}, () => {
+                        console.log(this.state);
+                        this.handleNext();
+                    })}
                 />;
             default:
                 throw new Error('Unknown step');
@@ -275,6 +289,9 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
                 break;
             }
             case 2:
+                this.setState((prevState) => {
+                    return {activeStep: prevState!.activeStep + 1};
+                });
                 break;
             default:
                 throw new Error('Unknown step');
@@ -293,7 +310,7 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
     };
     render(): React.ReactNode {
         const {classes} = this.props;
-        const {activeStep, errorInfo, errorPop, loading} = this.state;
+        const {activeStep, errorInfo, errorPop, loading, steps} = this.state;
         return (
             <React.Fragment>
                 <CssBaseline />
@@ -312,12 +329,10 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
                         <React.Fragment>
                             {activeStep === steps.length ? (
                                 <React.Fragment>
-                                    <Typography variant="h5" gutterBottom>
-                                        Rocket Launch.
+                                    <Typography variant="subtitle1"  align="center">
+                                        All set, launching...
                                     </Typography>
-                                    <Typography variant="subtitle1">
-                                        All set, start launching.
-                                    </Typography>
+                                    <LinearProgress />
                                 </React.Fragment>
                             ) : (
                                 <React.Fragment>
