@@ -10,6 +10,8 @@ import Container from '@material-ui/core/Container';
 import Box from '@material-ui/core/Box';
 import PinCode from '../PinCode';
 import {settings} from '../../constants';
+import AccountData from '../../types/Account';
+import Button from '@material-ui/core/Button';
 
 const useStyles = (theme: Theme) => createStyles({
     '@global': {
@@ -48,6 +50,8 @@ const useStyles = (theme: Theme) => createStyles({
 
 interface LoginWithStyles extends WithStyles<typeof useStyles> {
     successRedirect: () => void;
+    checkLogin: (account: AccountData) => void;
+    accountData: AccountData;
 }
 class Login extends React.Component<LoginWithStyles> {
     constructor(props: LoginWithStyles) {
@@ -75,6 +79,9 @@ class Login extends React.Component<LoginWithStyles> {
                                  successRedirect();
                              }}
                     />
+                    <Button variant="contained" color="primary">
+                        Hello , World Again
+                    </Button>
                 </Box>
             </Container>
         );

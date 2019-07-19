@@ -2,7 +2,7 @@ import Home from '../components/Home';
 import Login from '../containers/login';
 import Counter from '../containers/counter';
 import Weather from '../containers/weather';
-import Register from '../components/Register';
+import Register from '../containers/register';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import PeopleIcon from '@material-ui/icons/People';

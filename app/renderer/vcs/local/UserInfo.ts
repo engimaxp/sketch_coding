@@ -85,7 +85,7 @@ export class UserInfo {
             // put() will handle both cases.
             // (record the result keys from the put() operations into emailIds and phoneIds
             //  so that we can find local deletes)
-            const [emailIds] = await Promise.all ([
+            const [repoIds] = await Promise.all ([
                 Promise.all(this.repos.map(repo => db.repos.put(repo))),
             ]);
 
@@ -94,7 +94,7 @@ export class UserInfo {
             // in our navigation properties:
             await Promise.all([
                 db.repos.where('userId').equals(this.id) // references us
-                    .and(repo => emailIds.indexOf(repo.id || -1) === -1) // Not anymore in our array
+                    .and(repo => repoIds.indexOf(repo.id || -1) === -1) // Not anymore in our array
                     .delete(),
             ]);
         });

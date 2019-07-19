@@ -18,6 +18,7 @@ import MySnackbarContentWrapper from '../Common/MySnackbarContentWrapper';
 import fs from 'fs';
 import * as git from 'isomorphic-git';
 import LinearProgress from '@material-ui/core/LinearProgress';
+import AccountData from '../../types/Account';
 const useStyles = (theme: Theme) => createStyles({
     layout: {
         width: 'auto',
@@ -54,7 +55,7 @@ const useStyles = (theme: Theme) => createStyles({
 });
 
 interface RegisterWithStyles extends WithStyles<typeof useStyles> {
-    successRedirect: () => void;
+    successRedirect: (account: AccountData) => void;
 }
 
 interface RegisterFormState {
@@ -84,7 +85,7 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
     constructor(props: Readonly<RegisterWithStyles>) {
         super(props);
         this.state = {
-            activeStep: 2,
+            activeStep: 0,
             errorInfo: '',
             errorPop: false,
             loading: false,
@@ -292,7 +293,18 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
             case 2:
                 this.setState((prevState) => {
                     return {activeStep: prevState!.activeStep + 1};
-                });
+                }, async () => await this.props.successRedirect({
+                    pinCode: this.state.pinCode,
+                    password: this.state.password,
+                    username: this.state.loginName,
+                    nickName: this.state.nickName,
+                    avatar: this.state.avatarImage,
+                    repo: {
+                        targetRepo: this.state.targetRepo!.name,
+                        repoUrl: this.state.targetRepo!.clone_url,
+                        localDirectory: (this.state.localPath === undefined ? '' : this.state.localPath),
+                    },
+                }));
                 break;
             default:
                 throw new Error('Unknown step');
