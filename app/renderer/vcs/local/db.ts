@@ -1,17 +1,15 @@
 import Dexie from 'dexie';
-import {Contact} from './Contact';
-import {PhoneNumber} from './PhoneNumber';
-import {EmailAddress} from './EmailAddress';
+import {UserInfo} from './UserInfo';
+import {Repo} from './Repo';
 
 export class AppDatabase extends Dexie {
 
-    contacts: Dexie.Table<Contact, number>;
-    emails: Dexie.Table<EmailAddress, number>;
-    phones: Dexie.Table<PhoneNumber, number>;
+    users: Dexie.Table<UserInfo, number>;
+    repos: Dexie.Table<Repo, number>;
 
     constructor() {
 
-        super('ContactsDatabase');
+        super('UserSettingDatabase');
 
         const dataBase = this;
 
@@ -19,15 +17,14 @@ export class AppDatabase extends Dexie {
         // Define tables and indexes
         //
         dataBase.version(1).stores({
-            contacts: '++id, firstName, lastName',
-            emails: '++id, contactId, type, email',
-            phones: '++id, contactId, type, phone',
+            users: '++id, pinCode, password, username, nickname, avatar',
+            repos: '++id, userId, repoName, repoCloneUrl, repoLocalUrl',
         });
 
-        // Let's physically map Contact class to contacts table.
+        // Let's physically map UserInfo class to users table.
         // This will make it possible to call loadEmailsAndPhones()
         // directly on retrieved database objects.
-        dataBase.contacts.mapToClass(Contact);
+        dataBase.users.mapToClass(UserInfo);
     }
 }
 

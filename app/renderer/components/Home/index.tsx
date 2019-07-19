@@ -4,7 +4,7 @@ import './home.css';
 import Button from '@material-ui/core/Button';
 import Select from 'react-select';
 import {db} from '../../vcs/local/db';
-import {Contact} from '../../vcs/local/Contact';
+import {UserInfo} from '../../vcs/local/UserInfo';
 
 interface OptionSelect {
     value: string;
@@ -21,22 +21,24 @@ async function haveSomeFun() {
     //
     // Seed Database
     //
-    console.log('Seeding database with some contacts...');
-    await db.transaction('rw', db.contacts, db.emails, db.phones, async () => {
+    console.log('Seeding database with some users...');
+    await db.transaction('rw', db.users, db.repos, async () => {
         // Populate a contact
-        const arnoldId = await db.contacts.add(new Contact('Arnold', 'Fitzgerald'));
+        const arnoldId = await db.users.add(new UserInfo('Arnold', 'Fitzgerald',
+            'Arnold', 'Fitzgerald', 'Arnold'));
 
-        // Populate some emails and phone numbers for the contact
-        db.emails.add({ contactId: arnoldId, type: 'home', email: 'arnold@email.com' });
-        db.emails.add({ contactId: arnoldId, type: 'work', email: 'arnold@abc.com' });
-        db.phones.add({ contactId: arnoldId, type: 'home', phone: '12345678' });
-        db.phones.add({ contactId: arnoldId, type: 'work', phone: '987654321' });
+        // Populate some repos and phone numbers for the contact
+        db.repos.add({ userId: arnoldId, repoName: 'home', repoCloneUrl: 'arnold@email.com',
+            repoLocalUrl: 'arnold@email.com' });
+        db.repos.add({ userId: arnoldId, repoName: 'work', repoCloneUrl: 'arnold@abc.com',
+            repoLocalUrl: 'arnold@email.com' });
 
         // ... and another one...
-        const adamId = await db.contacts.add(new Contact('Adam', 'Tensta'));
-        // Populate some emails and phone numbers for the contact
-        db.emails.add({ contactId: adamId, type: 'home', email: 'adam@tensta.se' });
-        db.phones.add({ contactId: adamId, type: 'work', phone: '88888888' });
+        const adamId = await db.users.add(new UserInfo('Adam', 'Tensta',
+            'Adam', 'Tensta', 'Adam'));
+        // Populate some repos and phone numbers for the contact
+        db.repos.add({ userId: adamId, repoName: 'home', repoCloneUrl: 'adam@tensta.se',
+            repoLocalUrl: 'arnold@email.com' });
     });
 
     //
@@ -47,47 +49,42 @@ async function haveSomeFun() {
     // to db.phones.add(), we will add yet another phone number
     // to an existing contact and then re-save it:
     console.log('Playing a little: adding another phone entry for Adam Tensta...');
-    const adam = (await db.contacts.orderBy('lastName').last()) || new Contact('default', 'default');
-    console.log(`Found contact: ${adam.firstName} ${adam.lastName} (id: ${adam.id})`);
+    const adam = (await db.users.orderBy('nickname').last()) || new UserInfo('default',
+        'default', 'default', 'default', 'default');
+    console.log(`Found contact: ${adam.nickname} ${adam.pinCode} (id: ${adam.id})`);
 
     // To add another phone number to adam, the straight forward way would be this:
-    await db.phones.add({contactId: adam.id, type: 'custom', phone: '+46 7777777'});
 
     // But now let's do that same thing by manipulating navigation property instead:
-    // Load emails and phones navigation properties
+    // Load repos and phones navigation properties
     await adam.loadNavigationProperties();
 
     // Now, just push another phone number to adam.phones navigation property:
-    adam.phones.push({
-        contactId: adam.id,
-        type: 'custom',
-        phone: '112'
-    });
     // And just save adam:
     console.log('Saving contact');
     await adam.save();
 
-    // Now, print out all contacts
-    console.log('Now dumping some contacts to console:');
+    // Now, print out all users
+    console.log('Now dumping some users to console:');
     await printContacts();
 }
 
 async function printContacts() {
 
-    // Now we're gonna list all contacts starting with letter 'A','B' or 'C'
+    // Now we're gonna list all users starting with letter 'A','B' or 'C'
     // and print them out.
     // For each contact, also resolve the navigation properties.
 
     // For atomicity and speed, use a single transaction for the
     // queries to make:
-    const contacts = await db.transaction('r', [db.contacts, db.phones, db.emails], async() => {
+    const contacts = await db.transaction('r', [db.users, db.repos], async() => {
 
-        // Query some contacts
-        const someContacts = await db.contacts
-            .where('firstName').startsWithAnyOfIgnoreCase('a', 'b', 'c')
+        // Query some users
+        const someContacts = await db.users
+            .where('nickname').startsWithAnyOfIgnoreCase('a', 'b', 'c')
             .sortBy('id');
 
-        // Resolve array properties 'emails' and 'phones'
+        // Resolve array properties 'repos' and 'phones'
         // on each and every contact:
         await Promise.all (someContacts.map(contact => contact.loadNavigationProperties()));
 
@@ -95,16 +92,12 @@ async function printContacts() {
     });
 
     // Print result
-    console.log('Database contains the following contacts:');
+    console.log('Database contains the following users:');
     contacts.forEach(contact => {
-        console.log(contact.id + '. ' + contact.firstName + ' ' + contact.lastName);
-        console.log('   Phone numbers: ');
-        contact.phones.forEach(phone => {
-            console.log('     ' + phone.phone + '(' + phone.type + ')');
-        });
+        console.log(contact.id + '. ' + contact.nickname + ' ' + contact.pinCode);
         console.log('   Emails: ');
-        contact.emails.forEach(email => {
-            console.log('     ' + email.email + '(' + email.type + ')');
+        contact.repos.forEach(repo => {
+            console.log('     ' + repo.repoName + '(' + repo.repoCloneUrl + ')');
         });
     });
 }
@@ -123,7 +116,7 @@ export default class Home extends Component {
         console.log('Clearing database...');
         // await db.delete();
         // await db.open();
-        await Promise.all([db.contacts.clear(), db.emails.clear(), db.phones.clear()]);
+        await Promise.all([db.users.clear(), db.repos.clear()]);
 
         await haveSomeFun();
     }

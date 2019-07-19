@@ -16,13 +16,13 @@ interface RouteMap {
 }
 
 export const indexPage: RouteMap = {
-    // link: '/', location: '/', isOnNav: false,
-    link: '/register', location: '/register', isOnNav: false,
+    link: '/', location: '/', isOnNav: false,
+    // link: '/register', location: '/register', isOnNav: false,
     title: 'Login', containerElement: Login, icon: DashboardIcon
 };
 export const registerPage: RouteMap = {
-    // link: '/register', location: '/register', isOnNav: false,
-    link: '/', location: '/', isOnNav: false,
+    link: '/register', location: '/register', isOnNav: false,
+    // link: '/', location: '/', isOnNav: false,
     title: 'Register', containerElement: Register, icon: DashboardIcon
 };
 

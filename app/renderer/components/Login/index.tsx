@@ -57,7 +57,7 @@ class Login extends React.Component<LoginWithStyles> {
     }
 
     render(): React.ReactNode {
-        const {classes} = this.props;
+        const {classes, successRedirect} = this.props;
 
         return (
             <Container component={'main' as any} maxWidth="xs">
@@ -70,7 +70,10 @@ class Login extends React.Component<LoginWithStyles> {
                         Pin Code
                     </Typography>
                     <PinCode pinSize={settings.pinSize}
-                             submit={(code: string) => console.log(code)}
+                             submit={(code: string) => {
+                                 console.log(code);
+                                 successRedirect();
+                             }}
                     />
                 </Box>
             </Container>
