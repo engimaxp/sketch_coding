@@ -25,6 +25,9 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
                 dispatch(push(registerPage.link));
             }
         }
+    },
+    redirectToRegister: () => {
+        dispatch(push(registerPage.link));
     }
 });
 

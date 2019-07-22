@@ -34,13 +34,11 @@ export const getANewAccount: ((account: AccountData) => UserInfo|null) = (accoun
 };
 export const getAccounts = async (limitNumber: number) => {
     return await db.transaction('r', [db.users, db.repos], async() => {
-        const firstUsers: any = await db.users.orderBy('id').limit(limitNumber);
+        const firstUsers: any = await db.users.orderBy('id').limit(limitNumber)
+            .toArray();
         await Promise.all (firstUsers.map((user: UserInfo) => user.loadNavigationProperties()));
         return firstUsers;
     });
-};
-export const clearAccountAndRepos = async () => {
-    return await Promise.all([db.users.clear(), db.repos.clear()]);
 };
 export class UserInfo {
     id: number;

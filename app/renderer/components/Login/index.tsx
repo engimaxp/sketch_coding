@@ -12,6 +12,7 @@ import PinCode from '../PinCode';
 import {settings} from '../../constants';
 import AccountData from '../../types/Account';
 import Button from '@material-ui/core/Button';
+import {db} from '../../vcs/local/db';
 
 const useStyles = (theme: Theme) => createStyles({
     '@global': {
@@ -50,13 +51,30 @@ const useStyles = (theme: Theme) => createStyles({
 
 interface LoginWithStyles extends WithStyles<typeof useStyles> {
     successRedirect: () => void;
+    redirectToRegister: () => void;
     checkLogin: (account: AccountData) => void;
     accountData: AccountData;
 }
 class Login extends React.Component<LoginWithStyles> {
+    private checkLogin: boolean;
     constructor(props: LoginWithStyles) {
         super(props);
+        this.checkLogin = false;
     }
+    componentWillMount = async () => {
+        if (!this.checkLogin) {
+            await this.props.checkLogin(this.props.accountData);
+        }
+    };
+    clearAccountDB = async () => {
+        console.log('Clearing database...');
+        // await db.delete();
+        // await db.open();
+        await Promise.all([db.users.clear(), db.repos.clear()]);
+        if (this.props.redirectToRegister) {
+            this.props.redirectToRegister();
+        }
+    };
     componentDidMount(): void {
     }
 
@@ -79,8 +97,8 @@ class Login extends React.Component<LoginWithStyles> {
                                  successRedirect();
                              }}
                     />
-                    <Button variant="contained" color="primary">
-                        Hello , World Again
+                    <Button variant="contained" color="secondary" onClick={this.clearAccountDB}>
+                        Clear All Local Data
                     </Button>
                 </Box>
             </Container>

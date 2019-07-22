@@ -174,20 +174,20 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
             return;
         }
         const githubUser: any = JSON.parse(githubUserResult.text);
-        if (!(githubUser && githubUser.repos_url && githubUser.name && githubUser.avatar_url)) {
+        if (!(githubUser && githubUser.repos_url && githubUser.login && githubUser.avatar_url)) {
             this.error('githubUser request to github no user info');
             console.log(githubUserResult);
             this.setState({loading: false});
             return;
         }
         this.setState({
-            nickName: githubUser.name,
+            nickName: githubUser.login,
             avatarImage: githubUser.avatar_url
         });
         let githubReposResult: any;
         try {
             githubReposResult = await superagent
-                .get(githubUser.repos_url)
+                .get('https://api.github.com/user/repos')
                 .auth(loginName, loginPassword)
                 .set('user-agent', 'node.js')
                 .timeout({response: 30000});
@@ -245,7 +245,9 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
                 url: targetRepo.clone_url,
                 ref: targetRepo.default_branch,
                 singleBranch: true,
-                depth: 10
+                depth: 10,
+                username: loginName,
+                password,
             });
             await git.config({
                 dir: userDir,

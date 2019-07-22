@@ -10,8 +10,8 @@ import {db} from '../vcs/local/db';
 import {getANewAccount} from '../vcs/local/UserInfo';
 import {getANewRepo} from '../vcs/local/Repo';
 
-const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => {
-    return ({
+const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) =>
+    ({
         successRedirect: async (account: AccountData) => {
             const currentAccount = getANewAccount(account);
             if (currentAccount === null) {
@@ -35,6 +35,5 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => {
             dispatch(push(nestedIndexPage.link));
         }
     });
-};
 
 export default connect(null, mapDispatchToProps)(Register);
