@@ -1,8 +1,7 @@
 import React from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import FingerprintIcon from '@material-ui/icons/Fingerprint';
-import Typography from '@material-ui/core/Typography';
+import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import {Theme, WithStyles} from '@material-ui/core/styles';
 import { createStyles } from '@material-ui/core';
 import withStyles from '@material-ui/core/styles/withStyles';
@@ -17,7 +16,10 @@ import {getAccountById, UserInfo} from '../../vcs/local/UserInfo';
 import {withError, WithErrorsProps} from '../SnackBar/ErrorInfoSnackBar';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
-
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import Link from '@material-ui/core/Link';
+import Typography from '@material-ui/core/Typography';
 const useStyles = (theme: Theme) => createStyles({
     '@global': {
         body: {
@@ -32,7 +34,7 @@ const useStyles = (theme: Theme) => createStyles({
     },
     avatar: {
         margin: theme.spacing(9, 1, 4, 1),
-        backgroundColor: theme.palette.secondary.main,
+        backgroundColor: theme.palette.primary.main,
         width: theme.spacing(8),
         height: theme.spacing(8),
     },
@@ -50,6 +52,10 @@ const useStyles = (theme: Theme) => createStyles({
     },
     textField: {
         textAlign: 'center'
+    },
+    formControl: {
+        margin: theme.spacing(1),
+        minWidth: 120,
     }
 });
 
@@ -71,8 +77,21 @@ const convertSelectOptionsToMenuItems = (options: UserInfo[]) => {
         return options.map((option, index) => {
             return (<MenuItem key={index}
                       value={option.id}>
-                <Avatar alt="Remy Sharp" src={option.avatar} />
-                <Box>{option.nickname}</Box>
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start'
+                }}>
+                    <Avatar src={option.avatar}
+                            style={{
+                                margin: 10,
+                                width: 30,
+                                height: 30
+                            }}
+                    />
+                    <Box>{option.nickname}</Box>
+                </div>
             </MenuItem>);
         });
     }
@@ -138,40 +157,60 @@ class Login extends React.Component<LoginWithStyles, LoginStatus> {
                 <CssBaseline/>
                 <Box className={classes.paper} height="100%">
                     <Avatar className={classes.avatar}>
-                        <FingerprintIcon fontSize={'large'}/>
+                        <LockOutlinedIcon fontSize={'large'}/>
                     </Avatar>
-                    <Typography component={'h4' as any} variant="h5">
-                        Select User
+                    <FormControl variant="filled"
+                                 fullWidth
+                                 className={classes.formControl}>
+                        <InputLabel htmlFor="user-select">select user</InputLabel>
+                        <Select
+                            name="user"
+                            inputProps={{
+                                id: 'user-select',
+                            }}
+                            value={selectedUser}
+                            onChange={this.handleChange}
+                        >
+                            {convertSelectOptionsToMenuItems(userInfos)}
+                        </Select>
+                    </FormControl>
+                    {selectedUser === '' ? (
+                            <div
+                                style={{
+                                    marginTop: 100,
+                                    marginBottom: 100
+                                }}
+                            />)
+                        :
+                        (<PinCode pinSize={settings.pinSize}
+                                                            reset={reset}
+                                                            submit={(code: string) => {
+                                                                console.log(code);
+                                                                if (code === pinCodeValid) {
+                                                                    successRedirect();
+                                                                } else {
+                                                                    this.error('Unmatched pin code');
+                                                                    this.setState((prevState: LoginStatus) => {
+                                                                        return {reset: prevState.reset + 1};
+                                                                    });
+                                                                }
+                                                            }}
+                    />)
+                    }
+                    <Typography variant="body2"
+                                color="textSecondary"
+                                style={{marginTop: 20}}
+                                align="center">
+                        {'If you want create a new account , please '}
+                        <Link color="secondary" onClick={this.goToRegister}>
+                            click here
+                        </Link>
+                        {' to register a new local account.'}
                     </Typography>
-                    <Select
-                        fullWidth
-                        value={selectedUser}
-                        onChange={this.handleChange}
-                    >
-                        {convertSelectOptionsToMenuItems(userInfos)}
-                    </Select>
-                    <Typography component={'h4' as any} variant="h5">
-                        Pin Code
-                    </Typography>
-                    <PinCode pinSize={settings.pinSize}
-                             reset={reset}
-                             submit={(code: string) => {
-                                 console.log(code);
-                                 if (code === pinCodeValid) {
-                                     successRedirect();
-                                 } else {
-                                     this.error('Unmatched pin code');
-                                     this.setState((prevState: LoginStatus) => {
-                                         return {reset: prevState.reset + 1};
-                                     });
-                                 }
-                             }}
-                    />
-                    <Button variant="contained" color="secondary" onClick={this.clearAccountDB}>
-                        Clear All Local Data
-                    </Button>
-                    <Button variant="contained" color="primary" onClick={this.goToRegister}>
-                        Create a new account
+                    <Button variant="contained" color="secondary"
+                            style={{marginTop: 20}}
+                            onClick={this.clearAccountDB}>
+                        Clear All Local User Data
                     </Button>
                 </Box>
             </Container>
