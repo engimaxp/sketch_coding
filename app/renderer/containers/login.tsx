@@ -6,7 +6,7 @@ import {ThunkDispatch} from 'redux-thunk';
 import { push } from 'connected-react-router';
 import {nestedIndexPage, registerPage} from '../routes/routeMap';
 import AccountData from '../types/Account';
-import {getAccounts} from '../vcs/local/UserInfo';
+import {getAccounts, UserInfo} from '../vcs/local/UserInfo';
 const mapStateToProps = (state: StoreState) => ({
   accountData: state.account.data,
 });
@@ -16,15 +16,19 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
     dispatch(push(nestedIndexPage.link));
   },
     checkLogin: async (account: AccountData) => {
+        let userInfos: UserInfo[] = [];
         if (!!account && !!account.username) {
             dispatch(push(nestedIndexPage.link));
         } else {
             const dbAccounts = await getAccounts(5);
+            console.log(JSON.stringify(dbAccounts));
             if (!dbAccounts || dbAccounts.length === 0) {
                 // fetch from db check there is account available
                 dispatch(push(registerPage.link));
             }
+            userInfos = dbAccounts;
         }
+        return userInfos;
     },
     redirectToRegister: () => {
         dispatch(push(registerPage.link));

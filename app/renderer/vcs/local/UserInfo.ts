@@ -40,6 +40,16 @@ export const getAccounts = async (limitNumber: number) => {
         return firstUsers;
     });
 };
+export const getAccountById = async (id: string) => {
+    return await db.transaction('r', [db.users, db.repos], async() => {
+        const firstUser = await db.users.where('id').equals(id).first();
+        if (!firstUser) {
+            return undefined;
+        }
+        await firstUser.loadNavigationProperties();
+        return firstUser;
+    });
+};
 export class UserInfo {
     id: number;
     pinCode: string;

@@ -11,10 +11,9 @@ import Typography from '@material-ui/core/Typography';
 import VcsUserForm from './VcsUserForm';
 import VcsRepoForm from './VcsRepoForm';
 import VcsPinSetForm from './VcsPinSetForm';
+import {withError, WithErrorsProps} from '../SnackBar/ErrorInfoSnackBar';
 import withStyles from '@material-ui/core/styles/withStyles';
 import superagent from 'superagent';
-import {Snackbar} from '@material-ui/core';
-import MySnackbarContentWrapper from '../Common/MySnackbarContentWrapper';
 import fs from 'fs';
 import * as git from 'isomorphic-git';
 import LinearProgress from '@material-ui/core/LinearProgress';
@@ -54,20 +53,18 @@ const useStyles = (theme: Theme) => createStyles({
     },
 });
 
-interface RegisterWithStyles extends WithStyles<typeof useStyles> {
+interface RegisterWithStyles extends WithStyles<typeof useStyles>, WithErrorsProps {
     successRedirect: (account: AccountData) => void;
 }
 
 interface RegisterFormState {
     activeStep: number;
-    errorInfo: string;
     loginName?: string;
     nickName?: string;
     rememberPassword?: boolean;
     avatarImage?: string;
     pinCode?: string;
     password?: string;
-    errorPop: boolean;
     userPublicRepo?: GithubRepo[];
     targetRepo?: GithubRepo;
     localPath?: string;
@@ -81,13 +78,12 @@ interface GithubRepo {
     name: string;
 }
 class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
-
+    private readonly error: (error: string) => void;
     constructor(props: Readonly<RegisterWithStyles>) {
         super(props);
+        this.error = props.error;
         this.state = {
             activeStep: 0,
-            errorInfo: '',
-            errorPop: false,
             loading: false,
             steps: ['Github Account', 'Select Repository', 'Setting Pin Code']
         };
@@ -163,6 +159,7 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
                 .timeout({response: 30000});
         } catch (e) {
             console.log('get user error');
+            this.error('get user error');
             console.log(e);
             this.setState({loading: false});
             return;
@@ -266,12 +263,6 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
         this.setState({loading: false});
     };
 
-    error = (error: string) => {
-        this.setState({
-            errorPop: true,
-            errorInfo: error
-        });
-    };
     handleNext = () => {
         switch (this.state.activeStep) {
             case 0: {
@@ -318,17 +309,12 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
             return {activeStep: prevState!.activeStep - 1};
         });
     };
-    handleCloseError = () => {
-        this.setState({
-            errorPop: false
-        });
-    };
     render(): React.ReactNode {
         const {classes} = this.props;
-        const {activeStep, errorInfo, errorPop, loading, steps} = this.state;
+        const {activeStep, loading, steps} = this.state;
         return (
             <React.Fragment>
-                <CssBaseline />
+                <CssBaseline/>
                 <main className={classes.layout}>
                     <Paper className={classes.paper}>
                         <Typography component={'h1' as any} variant="h4" align="center">
@@ -351,7 +337,7 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
                                               alignItems: 'center',
                                           }}
                                     >
-                                        <Typography variant="h5"  align="center"
+                                        <Typography variant="h5" align="center"
                                                     style={{
                                                         marginTop: 128,
                                                     }}
@@ -375,14 +361,14 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
                                             </Button>
                                         )}
                                         {activeStep !== 2 ? (
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            onClick={this.handleNext}
-                                            className={classes.button}
-                                        >
-                                            {loading ? 'Loading...' : 'Next'}
-                                        </Button>
+                                            <Button
+                                                variant="contained"
+                                                color="primary"
+                                                onClick={this.handleNext}
+                                                className={classes.button}
+                                            >
+                                                {loading ? 'Loading...' : 'Next'}
+                                            </Button>
                                         ) : null}
                                     </div>
                                 </React.Fragment>
@@ -390,24 +376,9 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
                         </React.Fragment>
                     </Paper>
                 </main>
-                <Snackbar
-                    anchorOrigin={{
-                        vertical: 'top',
-                        horizontal: 'center',
-                    }}
-                    open={errorPop}
-                    autoHideDuration={6000}
-                    onClose={this.handleCloseError}
-                >
-                    <MySnackbarContentWrapper
-                        onClose={this.handleCloseError}
-                        variant="error"
-                        message={errorInfo}
-                    />
-                </Snackbar>
             </React.Fragment>
         );
     }
 }
 
-export default withStyles(useStyles)(Register);
+export default withStyles(useStyles)(withError(Register));

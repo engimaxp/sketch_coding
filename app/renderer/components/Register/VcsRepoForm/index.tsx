@@ -60,7 +60,7 @@ export default class VcsRepoForm extends React.Component<RepoFormProperty, RepoF
                                                    isCreatable: false,
                                                    msgNoOptionsAvailable:
                                                        'No repo for this github account, please create one first',
-                                                   msgNoOptionsMatchFilter: 'Not fount a matchable repo'
+                                                   msgNoOptionsMatchFilter: 'Not found a matchable repo'
                                                }}
                                                helperText={'select a repo for remote vcs source'}
                                                onChange={this.handleChange} />
