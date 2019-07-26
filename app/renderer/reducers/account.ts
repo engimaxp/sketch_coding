@@ -12,7 +12,7 @@ export const INITIAL_STATE: AccountData = {
   repo: undefined,
 };
 
-export default function weather(state: AccountState = {data: INITIAL_STATE}, action: accountActions): AccountState {
+export default function account(state: AccountState = {data: INITIAL_STATE}, action: accountActions): AccountState {
   if (action.type === SET) {
     return {
       data: action.account

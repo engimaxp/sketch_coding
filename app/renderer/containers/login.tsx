@@ -7,13 +7,15 @@ import { push } from 'connected-react-router';
 import {nestedIndexPage, registerPage} from '../routes/routeMap';
 import AccountData from '../types/Account';
 import {getAccounts, UserInfo} from '../vcs/local/UserInfo';
+import {set} from '../actions/account';
 const mapStateToProps = (state: StoreState) => ({
   accountData: state.account.data,
 });
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
-    successRedirect: () => {
-    dispatch(push(nestedIndexPage.link));
+    successRedirect: (account: AccountData) => {
+        dispatch(set(account));
+        dispatch(push(nestedIndexPage.link));
   },
     checkLogin: async (account: AccountData) => {
         let userInfos: UserInfo[] = [];

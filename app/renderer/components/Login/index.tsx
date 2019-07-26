@@ -9,7 +9,7 @@ import Container from '@material-ui/core/Container';
 import Box from '@material-ui/core/Box';
 import PinCode from '../PinCode';
 import {settings} from '../../constants';
-import AccountData from '../../types/Account';
+import AccountData, {AccountRepo} from '../../types/Account';
 import Button from '@material-ui/core/Button';
 import {db} from '../../vcs/local/db';
 import {getAccountById, UserInfo} from '../../vcs/local/UserInfo';
@@ -20,6 +20,7 @@ import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
+import {Repo} from '../../vcs/local/Repo';
 const useStyles = (theme: Theme) => createStyles({
     '@global': {
         body: {
@@ -60,7 +61,7 @@ const useStyles = (theme: Theme) => createStyles({
 });
 
 interface LoginWithStyles extends WithStyles<typeof useStyles>, WithErrorsProps {
-    successRedirect: () => void;
+    successRedirect: (account: AccountData) => void;
     redirectToRegister: () => void;
     checkLogin: (account: AccountData) => Promise<UserInfo[]>;
     accountData: AccountData;
@@ -97,6 +98,14 @@ const convertSelectOptionsToMenuItems = (options: UserInfo[]) => {
     }
     return null;
 };
+
+const mapRepo: ((repos: Repo[]) => AccountRepo[]) = (repos: Repo[]) => repos.map(x => {
+    return {
+        targetRepo: x.repoName,
+        repoUrl: x.repoCloneUrl,
+        localDirectory: x.repoLocalUrl
+    };
+});
 
 class Login extends React.Component<LoginWithStyles, LoginStatus> {
     private readonly checkLogin: boolean;
@@ -149,8 +158,26 @@ class Login extends React.Component<LoginWithStyles, LoginStatus> {
             });
         }
     };
+    successRedirect = (userId: string) => {
+        console.log( `userid: ` + userId);
+        console.log(JSON.stringify(this.state.userInfos));
+        const selectUser = this.state.userInfos.find(x => x.id === Number(userId));
+        if (!selectUser) {
+            this.error('no selected user');
+            return;
+        }
+        const accountData: AccountData = {
+            pinCode: selectUser!.pinCode,
+            password: selectUser!.password,
+            username: selectUser!.username,
+            nickName: selectUser!.nickname,
+            avatar: selectUser!.avatar,
+            repo: mapRepo(selectUser!.repos).shift(),
+        };
+        this.props.successRedirect(accountData);
+    };
     render(): React.ReactNode {
-        const {classes, successRedirect} = this.props;
+        const {classes} = this.props;
         const {userInfos, pinCodeValid, reset, selectedUser} = this.state;
         return (
             <Container component={'main' as any} maxWidth="xs">
@@ -187,7 +214,7 @@ class Login extends React.Component<LoginWithStyles, LoginStatus> {
                                                             submit={(code: string) => {
                                                                 console.log(code);
                                                                 if (code === pinCodeValid) {
-                                                                    successRedirect();
+                                                                    this.successRedirect(selectedUser);
                                                                 } else {
                                                                     this.error('Unmatched pin code');
                                                                     this.setState((prevState: LoginStatus) => {
