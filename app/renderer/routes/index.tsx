@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import {Route, Switch} from 'react-router';
 import NavBar from '../components/NavBar';
+import Avatar from '@material-ui/core/Avatar';
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
@@ -14,14 +15,19 @@ import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import SettingsIcon from '@material-ui/icons/Settings';
+import Popover from '@material-ui/core/Popover';
 import createStyles from '@material-ui/core/styles/createStyles';
 import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles';
 import {findRoute, indexPage, navRoutes} from './routeMap';
 import {connect} from 'react-redux';
-import {RouterState} from '../types';
+import {RouterState, StoreState} from '../types';
 import {ThunkDispatch} from 'redux-thunk';
 import {AnyAction} from 'redux';
 import {push} from 'connected-react-router';
+import {Paper} from '@material-ui/core';
+import MenuItem from '@material-ui/core/MenuItem';
+import MenuList from '@material-ui/core/MenuList';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 
 const styles = (theme: Theme) => createStyles({
     root: {
@@ -112,47 +118,73 @@ interface LocationWithStyles extends WithStyles<typeof styles> {
     pathname: string;
     search: string;
     hash: string;
+    avatar: string;
     backToIndex: () => void;
 }
 
 interface NavBarState {
-    open: boolean;
+    openDrawer: boolean;
+    popOverAnchor: HTMLButtonElement|null;
+    openPopOver: boolean;
 }
 const drawerWidth = 240;
 class Routes extends React.Component<LocationWithStyles , NavBarState> {
     constructor(props: LocationWithStyles) {
         super(props);
         this.state = {
-            open: false
+            openDrawer: false,
+            openPopOver: false,
+            popOverAnchor: null
         };
     }
-    handleDrawerOpen = () => {
-        this.setState({ open: true });
+
+    handleDrawerOpen = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        this.setState({
+            openDrawer: true,
+        });
     };
     backToIndex = () => {
         this.props.backToIndex();
     };
     handleDrawerClose = () => {
-        this.setState({ open: false });
+        this.setState({
+            openDrawer: false,
+        });
+    };
+    handlePopOverClose = () => {
+        this.setState({
+            openPopOver: false,
+            popOverAnchor: null});
+    };
+    handleAvatarClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        event.persist();
+        this.setState((prevState: Readonly<NavBarState>) => {
+            return {
+                openPopOver: !prevState.openPopOver,
+                popOverAnchor: !!prevState.popOverAnchor ? null : (event.target as HTMLButtonElement)
+            };
+        });
     };
     render(): React.ReactNode {
-        const { classes , pathname} = this.props;
+        const { classes , pathname, avatar} = this.props;
+        const {openDrawer, openPopOver, popOverAnchor} = this.state;
+        const id = openPopOver ? 'simple-popover' : undefined;
         return (
             <Fragment>
                 <div className={classes.root}>
                     <CssBaseline />
                     <AppBar
                         position="absolute"
-                        className={classNames(classes.appBar, this.state.open && classes.appBarShift)}
+                        className={classNames(classes.appBar, openDrawer && classes.appBarShift)}
                     >
-                        <Toolbar disableGutters={!this.state.open} variant={'dense'} className={classes.toolbar}>
+                        <Toolbar disableGutters={!openDrawer} variant={'dense'} className={classes.toolbar}>
                             <IconButton
                                 color="inherit"
                                 aria-label="Open drawer"
                                 onClick={this.handleDrawerOpen}
                                 className={classNames(
                                     classes.menuButton,
-                                    this.state.open && classes.menuButtonHidden,
+                                    this.state.openDrawer && classes.menuButtonHidden,
                                 )}
                             >
                                 <MenuIcon />
@@ -166,19 +198,48 @@ class Routes extends React.Component<LocationWithStyles , NavBarState> {
                             >
                                 {findRoute(pathname)}
                             </Typography>
-                            <IconButton color="inherit" className={classes.notificationIcon}
-                                        onClick={this.backToIndex}
+                            <IconButton aria-describedby={id} color="inherit" className={classes.notificationIcon}
+                                        onClick={this.handleAvatarClick}
                             >
-                                <SettingsIcon />
+                                {!!avatar ? (<Avatar src={avatar}
+                                                     style={{
+                                                         width: 20,
+                                                         height: 20
+                                                     }}
+                                />) : (<SettingsIcon/>)}
                             </IconButton>
+                            <Popover
+                                id={id}
+                                open={openPopOver}
+                                onClose={this.handlePopOverClose}
+                                anchorEl={popOverAnchor}
+                                anchorOrigin={{
+                                    vertical: 'bottom',
+                                    horizontal: 'right',
+                                }}
+                                transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'right',
+                                }}
+                            >
+                                <Paper id="menu-list-grow">
+                                    <ClickAwayListener onClickAway={this.handlePopOverClose}>
+                                        <MenuList>
+                                            <MenuItem onClick={this.handlePopOverClose}>Profile</MenuItem>
+                                            <MenuItem onClick={this.handlePopOverClose}>My account</MenuItem>
+                                            <MenuItem onClick={this.backToIndex}>Logout</MenuItem>
+                                        </MenuList>
+                                    </ClickAwayListener>
+                                </Paper>
+                            </Popover>
                         </Toolbar>
                     </AppBar>
                     <Drawer
                         variant="permanent"
                         classes={{
-                            paper: classNames(classes.drawerPaper, !this.state.open && classes.drawerPaperClose),
+                            paper: classNames(classes.drawerPaper, !this.state.openDrawer && classes.drawerPaperClose),
                         }}
-                        open={this.state.open}
+                        open={this.state.openDrawer}
                     >
                         <div className={classes.toolbarIcon}>
                             <IconButton onClick={this.handleDrawerClose}
@@ -207,11 +268,14 @@ const navRouteSwitch = (
         <Route key={index} path={value.location} component={value.containerElement} exact/>
     ))
 );
-const mapStateToProps = (state: RouterState) => ({
-    pathname: state.router.location.pathname,
-    search: state.router.location.search,
-    hash: state.router.location.hash,
-});
+const mapStateToProps = (state: RouterState & StoreState) => {
+    return ({
+        pathname: state.router.location.pathname,
+        search: state.router.location.search,
+        hash: state.router.location.hash,
+        avatar: state.account.data.avatar
+    });
+};
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
     backToIndex: () => {

@@ -5,7 +5,7 @@ import * as History from 'history';
 import { connectRouter, routerMiddleware } from 'connected-react-router';
 import rootReducer from '../reducers';
 
-const isDev = process.env.NODE_ENV === 'development' ? true : false;
+const isDev = process.env.NODE_ENV === 'development';
 
 export const history = History.createHashHistory();
 

@@ -133,7 +133,7 @@ class Login extends React.Component<LoginWithStyles, LoginStatus> {
     clearAccountDB = async () => {
         console.log('Clearing database...');
         // await db.delete();
-        // await db.open();
+        // await db.openDrawer();
         await Promise.all([db.users.clear(), db.repos.clear()]);
         if (this.props.redirectToRegister) {
             this.props.redirectToRegister();
@@ -159,8 +159,6 @@ class Login extends React.Component<LoginWithStyles, LoginStatus> {
         }
     };
     successRedirect = (userId: string) => {
-        console.log( `userid: ` + userId);
-        console.log(JSON.stringify(this.state.userInfos));
         const selectUser = this.state.userInfos.find(x => x.id === Number(userId));
         if (!selectUser) {
             this.error('no selected user');
