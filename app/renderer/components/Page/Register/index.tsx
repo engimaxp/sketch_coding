@@ -11,13 +11,13 @@ import Typography from '@material-ui/core/Typography';
 import VcsUserForm from './VcsUserForm';
 import VcsRepoForm from './VcsRepoForm';
 import VcsPinSetForm from './VcsPinSetForm';
-import {withError, WithErrorsProps} from '../SnackBar/ErrorInfoSnackBar';
+import {withError, WithErrorsProps} from '../../Control/SnackBar/ErrorInfoSnackBar';
 import withStyles from '@material-ui/core/styles/withStyles';
 import superagent from 'superagent';
 import fs from 'fs';
 import * as git from 'isomorphic-git';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import AccountData from '../../types/Account';
+import AccountData from '../../../types/Account';
 const useStyles = (theme: Theme) => createStyles({
     layout: {
         width: 'auto',

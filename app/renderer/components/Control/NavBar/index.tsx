@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import ListItem, {ListItemProps} from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import {navRoutes} from '../../routes/routeMap';
+import {navRoutes} from '../../../routes/routeMap';
 interface LinkListItemProps extends ListItemProps {
     to: string;
     replace?: boolean;

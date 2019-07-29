@@ -1,4 +1,4 @@
-import Home from '../components/Home';
+import Note from '../components/Page/Note';
 import Login from '../containers/login';
 import Counter from '../containers/counter';
 import Weather from '../containers/weather';
@@ -28,7 +28,7 @@ export const registerPage: RouteMap = {
 
 export const nestedIndexPage: RouteMap = {
     link: '/main/home', location: '/main/home', isOnNav: true,
-    title: 'Home', containerElement: Home, icon: DashboardIcon
+    title: 'Note', containerElement: Note, icon: DashboardIcon
 };
 
 export const globalRoutes: RouteMap[] = [

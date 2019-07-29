@@ -38,3 +38,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 12. add [isomorphic-git](https://github.com/isomorphic-git/isomorphic-git) for vsc control
 
 13. add [react-select-material-ui](https://github.com/iulian-radu-at/react-select-material-ui) for material-ui auto complete select control
+
+14. add [codemirror]() for code edit and display
+
+15. add [remarkable](https://github.com/jonschlinkert/remarkable) for markdown edit control preview support

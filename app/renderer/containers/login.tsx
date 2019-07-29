@@ -1,7 +1,7 @@
 import { AnyAction } from 'redux';
 import { connect } from 'react-redux';
 import { StoreState} from '../types';
-import Login from '../components/Login';
+import Login from '../components/Page/Login';
 import {ThunkDispatch} from 'redux-thunk';
 import { push } from 'connected-react-router';
 import {nestedIndexPage, registerPage} from '../routes/routeMap';

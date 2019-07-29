@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 import {ThunkDispatch} from 'redux-thunk';
 import AccountData from '../types/Account';
 import {set} from '../actions/account';
-import Register from '../components/Register';
+import Register from '../components/Page/Register';
 import {push} from 'connected-react-router';
 import {nestedIndexPage} from '../routes/routeMap';
 import {db} from '../vcs/local/db';

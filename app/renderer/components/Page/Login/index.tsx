@@ -7,20 +7,20 @@ import { createStyles } from '@material-ui/core';
 import withStyles from '@material-ui/core/styles/withStyles';
 import Container from '@material-ui/core/Container';
 import Box from '@material-ui/core/Box';
-import PinCode from '../PinCode';
-import {settings} from '../../constants';
-import AccountData, {AccountRepo} from '../../types/Account';
+import PinCode from '../../Control/PinCode';
+import {settings} from '../../../constants';
+import AccountData, {AccountRepo} from '../../../types/Account';
 import Button from '@material-ui/core/Button';
-import {db} from '../../vcs/local/db';
-import {getAccountById, UserInfo} from '../../vcs/local/UserInfo';
-import {withError, WithErrorsProps} from '../SnackBar/ErrorInfoSnackBar';
+import {db} from '../../../vcs/local/db';
+import {getAccountById, UserInfo} from '../../../vcs/local/UserInfo';
+import {withError, WithErrorsProps} from '../../Control/SnackBar/ErrorInfoSnackBar';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
-import {Repo} from '../../vcs/local/Repo';
+import {Repo} from '../../../vcs/local/Repo';
 const useStyles = (theme: Theme) => createStyles({
     '@global': {
         body: {

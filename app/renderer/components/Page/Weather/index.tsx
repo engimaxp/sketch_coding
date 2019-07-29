@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import WeatherData from '../../types/Weather';
+import WeatherData from '../../../types/Weather';
 
 interface WeatherProps {
     weatherProp: WeatherData;

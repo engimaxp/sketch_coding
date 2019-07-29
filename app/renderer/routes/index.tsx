@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import {Route, Switch} from 'react-router';
-import NavBar from '../components/NavBar';
+import NavBar from '../components/Control/NavBar';
 import Avatar from '@material-ui/core/Avatar';
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
@@ -28,6 +28,7 @@ import {Paper} from '@material-ui/core';
 import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import {clear} from '../actions/account';
 
 const styles = (theme: Theme) => createStyles({
     root: {
@@ -203,8 +204,8 @@ class Routes extends React.Component<LocationWithStyles , NavBarState> {
                             >
                                 {!!avatar ? (<Avatar src={avatar}
                                                      style={{
-                                                         width: 20,
-                                                         height: 20
+                                                         width: 24,
+                                                         height: 24
                                                      }}
                                 />) : (<SettingsIcon/>)}
                             </IconButton>
@@ -225,8 +226,7 @@ class Routes extends React.Component<LocationWithStyles , NavBarState> {
                                 <Paper id="menu-list-grow">
                                     <ClickAwayListener onClickAway={this.handlePopOverClose}>
                                         <MenuList>
-                                            <MenuItem onClick={this.handlePopOverClose}>Profile</MenuItem>
-                                            <MenuItem onClick={this.handlePopOverClose}>My account</MenuItem>
+                                            <MenuItem onClick={this.handlePopOverClose}>Settings</MenuItem>
                                             <MenuItem onClick={this.backToIndex}>Logout</MenuItem>
                                         </MenuList>
                                     </ClickAwayListener>
@@ -280,6 +280,7 @@ const mapStateToProps = (state: RouterState & StoreState) => {
 const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
     backToIndex: () => {
         dispatch(push(indexPage.location));
+        dispatch(clear());
     }
 });
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Routes));

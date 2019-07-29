@@ -2,7 +2,7 @@ import { AnyAction } from 'redux';
 import { connect } from 'react-redux';
 import { StoreState} from '../types';
 import {failFetch, startFetchAsync, successFetch} from '../actions/weather';
-import Weather from '../components/Weather';
+import Weather from '../components/Page/Weather';
 import {ThunkDispatch} from 'redux-thunk';
 
 const mapStateToProps = (state: StoreState) => ({
