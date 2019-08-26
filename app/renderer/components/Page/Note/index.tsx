@@ -1,51 +1,68 @@
 import React, { Component } from 'react';
-import Button from '@material-ui/core/Button';
-import Select from 'react-select';
-interface OptionSelect {
-    value: string;
-    label: string;
+import IconButton from '@material-ui/core/IconButton';
+import AddIcon from '@material-ui/icons/Add';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import {createStyles, Theme, WithStyles} from '@material-ui/core';
+import withStyles from '@material-ui/core/styles/withStyles';
+import NoteEditor from './NoteEditor';
+const useStyles = (theme: Theme) => createStyles({
+    '@global': {
+        body: {
+            backgroundColor: theme.palette.common.white,
+        },
+    },
+    avatar: {
+        backgroundColor: theme.palette.primary.main,
+        '&:hover': {
+            background: theme.palette.primary.light,
+        },
+    },
+    icon: {
+        color: theme.palette.common.white
+    }
+});
+interface NotePageState {
+    inEdit: boolean;
 }
+class NotePage extends Component<WithStyles<typeof useStyles>, NotePageState> {
 
-const options: OptionSelect[] = [
-    { value: 'chocolate', label: 'Chocolate' },
-    { value: 'strawberry', label: 'Strawberry' },
-    { value: 'vanilla', label: 'Vanilla' }
-];
-
-export default class Home extends Component {
-
-    state = {
-        selectedOption: null,
-    };
-
-    async componentDidMount() {
-
+    constructor(props: Readonly<WithStyles<typeof useStyles>>) {
+        super(props);
+        this.state = {
+            inEdit: false
+        };
     }
 
-    handleChange = (selectedOption: OptionSelect) => {
-        this.setState({ selectedOption });
-        console.log(`Option selected:`, selectedOption);
-    };
+    componentDidMount() {
 
+    }
+    createNewNote = () => {
+        this.setState({
+                inEdit: true
+            });
+    };
   render() {
-      const { selectedOption } = this.state;
+      const {classes} = this.props;
+      const {inEdit} = this.state;
       return (
-          <div className="App">
-              <header className="App-header">
-                  <h1 className="App-title">Welcome to React</h1>
-              </header>
-              <p className="App-intro">
-                  To get started, edit <code>renderer/containers/App.tsx</code> and save to reload.
-              </p>
-              <Button variant="contained" color="primary">
-                  Hello , World Again
-              </Button>
-              <Select
-                  value={selectedOption}
-                  onChange={this.handleChange}
-                  options={options}
-              />
+          <div style={{height: `calc(100% - ${48}px)`}}>
+              <CssBaseline />
+              {inEdit ? (<NoteEditor/>) : (
+                  <IconButton
+                      className={classes.avatar}
+                      style={{
+                          position: 'absolute',
+                          right: 20,
+                          bottom: 20
+                      }}
+                      onClick={this.createNewNote}
+                  >
+                      <AddIcon className={classes.icon}/>
+                  </IconButton>
+              )}
           </div>
     );
   }
 }
+
+export default withStyles(useStyles)(NotePage);
