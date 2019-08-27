@@ -5,6 +5,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import {createStyles, Theme, WithStyles} from '@material-ui/core';
 import withStyles from '@material-ui/core/styles/withStyles';
 import NoteEditor from './NoteEditor';
+import {settings} from '../../../constants';
 const useStyles = (theme: Theme) => createStyles({
     '@global': {
         body: {
@@ -41,13 +42,19 @@ class NotePage extends Component<WithStyles<typeof useStyles>, NotePageState> {
                 inEdit: true
             });
     };
+    getANewNote = (input: string) => {
+        this.setState({
+            inEdit: false
+        });
+        console.log(input);
+    };
   render() {
       const {classes} = this.props;
       const {inEdit} = this.state;
       return (
-          <div style={{height: `calc(100% - ${48}px)`}}>
+          <div style={{height: `calc(100% - ${settings.indexPage.titleHeight}px)`}}>
               <CssBaseline />
-              {inEdit ? (<NoteEditor/>) : (
+              {inEdit ? (<NoteEditor submit={this.getANewNote}/>) : (
                   <IconButton
                       className={classes.avatar}
                       style={{

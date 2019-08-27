@@ -1,4 +1,4 @@
-import { app, Menu } from 'electron';
+import { app, Menu, shell } from 'electron';
 import path from 'path';
 import url from 'url';
 import MainWindow from './windows/mainWindow';
@@ -40,6 +40,13 @@ class Electron {
     });
     app.on('window-all-closed', () => {
       app.quit();
+    });
+    /** Prevent links or window.open from opening new windows. */
+    app.on('web-contents-created', (_, contents) => {
+      contents.on('will-navigate', (event, url2: string) => {
+        event.preventDefault();
+        shell.openExternal(url2);
+      });
     });
   }
 

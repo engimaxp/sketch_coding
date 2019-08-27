@@ -8,6 +8,7 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import {settings} from '../../../../constants';
 import CreateIcon from '@material-ui/icons/Create';
 import * as moment from 'moment';
+import Typography from '@material-ui/core/Typography';
 const useStyles = (theme: Theme) => createStyles({
     '@global': {
         body: {
@@ -23,6 +24,11 @@ const useStyles = (theme: Theme) => createStyles({
         display: 'flex',
         justifyContent: 'flex-end'
     },
+    buttonBar2: {
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'flex-end'
+    },
     titleBar: {
         width: '100%',
         display: 'flex',
@@ -32,82 +38,165 @@ const useStyles = (theme: Theme) => createStyles({
     },
     title: {
         fontWeight: 'bold',
-        color: theme.palette.primary.main
+        color: theme.palette.primary.main,
+        paddingLeft: 5
     },
     titleIcon: {
         fontWeight: 'bold',
         color: theme.palette.primary.main
     },
-    wrapper: {
+    editWrapper: {
         height: `100%`,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
+    },
+    wrapper: {
+        height: `100%`
     }
 });
 interface NoteEditorState {
-    inEdit: boolean;
+    inEdit: boolean; // is in preview mode
     title: string;
+    content: string;
+    contentHtml: string;
 }
-class NoteEditor extends Component<WithStyles<typeof useStyles>, NoteEditorState> {
+interface NoteEditorProps extends WithStyles<typeof useStyles> {
+    submit: (input: string) => void;
+}
+class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
 
-    constructor(props: Readonly<WithStyles<typeof useStyles>>) {
+    private initialTitle: string = `Sketch_${moment().format('YYMMDD_HHmm')}`;
+    private md: any;
+    constructor(props: Readonly<NoteEditorProps>) {
         super(props);
         this.state = {
-            inEdit: false,
-            title: `Sketch_${moment().format('YYMMDD_HHmm')}`
+            inEdit: true,
+            title: this.initialTitle,
+            content: '',
+            contentHtml: '',
         };
+        const { Remarkable } = require('remarkable');
+        this.md = new Remarkable();
     }
-
-    componentDidMount() {
-
-    }
-    createNewNote = () => {
+    preview = () => {
         this.setState({
-                inEdit: true
-            });
+            inEdit: false
+        });
     };
-  render() {
-      const {classes} = this.props;
-      const {title} = this.state;
-      return (
-          <div className={classes.wrapper}>
-              <CssBaseline />
-              <textarea
-                  style={{
-                      borderWidth: 0,
-                      width: '100%',
-                      resize: 'none',
-                      flex: 1,
-                      paddingTop: settings.markdownEditor.padding,
-                      paddingLeft: settings.markdownEditor.padding,
-                      fontFamily: settings.markdownEditor.fontFamily,
-                      fontSize: settings.markdownEditor.fontSize,
-                  }}
-                  placeholder={'Type someting here...'}
-              />
-              <Box
-                  className={classes.titleBar}
-              >
-                  <Box style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                  }}>
-                      <CreateIcon className={classes.titleIcon}/>
-                      <FormLabel className={classes.title}>{title}</FormLabel>
-                  </Box>
-                  <Box
-                      className={classes.buttonBar}
-                  >
-                      <Button color="primary">Preview</Button>
-                      <Button color="secondary">Save</Button>
-                  </Box>
-              </Box>
-          </div>
-    );
-  }
+    returnEdit = () => {
+        this.setState({
+            inEdit: true
+        });
+    };
+    save = () => {
+        this.props.submit(this.state.content);
+    };
+    onChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+        if (!!event.target.value) {
+            let firstLine: string = event.target.value;
+            firstLine = firstLine.slice(0, firstLine.indexOf('\n'));
+            if (firstLine.startsWith('#')) {
+                firstLine = firstLine.substring(firstLine.indexOf('#') + 1);
+            }
+            firstLine = firstLine.trim();
+            if (firstLine.length > settings.markdownEditor.titleMaxLength) {
+                firstLine = firstLine.substring(0, settings.markdownEditor.titleMaxLength);
+            }
+            if (!!firstLine) {
+                this.setState({
+                    title: firstLine
+                });
+            }
+        } else {
+            this.setState({
+                title: this.initialTitle
+            });
+        }
+        this.setState({
+            content: event.target.value,
+            contentHtml: this.md.render(event.target.value)
+        });
+    };
+    render() {
+        const {classes} = this.props;
+        const {title, inEdit, content, contentHtml} = this.state;
+        return (
+            <div className={classes.wrapper}>
+                {inEdit ? (/* edit */
+                    <div className={classes.editWrapper}>
+                        <CssBaseline />
+                        <textarea
+                            className={'textarea_input'}
+                            onChange={this.onChange}
+                            style={{
+                                borderWidth: 0,
+                                width: '100%',
+                                resize: 'none',
+                                flex: 1,
+                                paddingTop: settings.markdownEditor.padding,
+                                paddingLeft: settings.markdownEditor.padding,
+                                fontFamily: settings.markdownEditor.fontFamily,
+                                fontSize: settings.markdownEditor.fontSize,
+                            }}
+                            value={content}
+                            placeholder={'Type someting here...'}
+                        />
+                        <Box
+                            className={classes.titleBar}
+                        >
+                            <Box style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                            }}>
+                                <CreateIcon className={classes.titleIcon}/>
+                                <FormLabel className={classes.title}>{title}</FormLabel>
+                            </Box>
+                            <Box
+                                className={classes.buttonBar}
+                            >
+                                <Button
+                                    color="primary"
+                                    onClick={this.preview}
+                                >Preview</Button>
+                                <Button
+                                    color="secondary"
+                                    onClick={this.save}
+                                >Save</Button>
+                            </Box>
+                        </Box>
+                    </div>) : (/* preview */
+                    <div className={classes.editWrapper}>
+                        <CssBaseline />
+                        <Typography
+                            style={{
+                                width: '100%',
+                                flex: 1,
+                                paddingTop: settings.markdownEditor.padding,
+                                paddingLeft: settings.markdownEditor.padding,
+                                fontFamily: settings.markdownEditor.fontFamily,
+                                fontSize: settings.markdownEditor.fontSize,
+                                overflowX: 'hidden',
+                                height: '100%'
+                            }}
+                            dangerouslySetInnerHTML={{__html: contentHtml}}
+                        />
+                        <Box
+                            className={classes.buttonBar2}
+                        >
+                            <Button
+                                color="primary"
+                                onClick={this.returnEdit}
+                            >Return</Button>
+                        </Box>
+                    </div>
+                )
+                }
+            </div>
+        );
+    }
 }
 
 export default withStyles(useStyles)(NoteEditor);

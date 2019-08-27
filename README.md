@@ -42,3 +42,9 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 14. add [codemirror]() for code edit and display
 
 15. add [remarkable](https://github.com/jonschlinkert/remarkable) for markdown edit control preview support
+
+16. [react-day-picker](http://react-day-picker.js.org/)
+
+17. [react-contenteditable](https://github.com/lovasoa/react-contenteditable)
+
+18. [react-custom-scrollbars](https://github.com/malte-wessel/react-custom-scrollbars) | [baron](https://github.com/Diokuz/baron) | [perfect-scrollbar](https://github.com/mdbootstrap/perfect-scrollbar)

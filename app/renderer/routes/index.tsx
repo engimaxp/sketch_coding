@@ -29,6 +29,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import {clear} from '../actions/account';
+import {settings} from '../constants';
 
 const styles = (theme: Theme) => createStyles({
     root: {
@@ -42,7 +43,7 @@ const styles = (theme: Theme) => createStyles({
         alignItems: 'center',
         justifyContent: 'flex-end',
         padding: '0 8px',
-        minHeight: 48
+        minHeight: settings.indexPage.titleHeight
     },
     appBar: {
         zIndex: theme.zIndex.drawer + 1,
@@ -93,7 +94,7 @@ const styles = (theme: Theme) => createStyles({
         marginRight: theme.spacing(-2)
     },
     appBarSpacer: {
-        minHeight: 48
+        minHeight: settings.indexPage.titleHeight
     },
     content: {
         flexGrow: 1,
