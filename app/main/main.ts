@@ -44,8 +44,10 @@ class Electron {
     /** Prevent links or window.open from opening new windows. */
     app.on('web-contents-created', (_, contents) => {
       contents.on('will-navigate', (event, url2: string) => {
-        event.preventDefault();
-        shell.openExternal(url2);
+        if (!isDev || url2.indexOf('//localhost:') < 0) {
+          event.preventDefault();
+          shell.openExternal(url2);
+        }
       });
     });
   }

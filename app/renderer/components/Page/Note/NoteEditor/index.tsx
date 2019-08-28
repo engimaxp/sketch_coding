@@ -9,6 +9,11 @@ import {settings} from '../../../../constants';
 import CreateIcon from '@material-ui/icons/Create';
 import * as moment from 'moment';
 import Typography from '@material-ui/core/Typography';
+import hljs from 'highlight.js';
+import 'highlight.js/styles/github.css';
+import * as path from 'path';
+import {escapeHtml, replaceEntities, unescapeMd} from 'remarkable/lib/common/utils';
+import Remarkable from 'remarkable';
 const useStyles = (theme: Theme) => createStyles({
     '@global': {
         body: {
@@ -64,6 +69,7 @@ interface NoteEditorState {
 }
 interface NoteEditorProps extends WithStyles<typeof useStyles> {
     submit: (input: string) => void;
+    localDirector: string;
 }
 class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
 
@@ -77,12 +83,28 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
             content: '',
             contentHtml: '',
         };
-        const { Remarkable } = require('remarkable');
-        this.md = new Remarkable();
+
+        this.md = new Remarkable({
+            highlight: (str: string, lang: string) => {
+                if (lang && hljs.getLanguage(lang)) {
+                    try {
+                        return hljs.highlight(lang, str).value;
+                    } catch (err) {}
+                }
+
+                try {
+                    return hljs.highlightAuto(str).value;
+                } catch (err) {}
+
+                return ''; // use external default escaping
+            }
+        });
+        overrideMarkdownParseToAdaptLink(this.md, this.props.localDirector);
     }
     preview = () => {
         this.setState({
-            inEdit: false
+            inEdit: false,
+            contentHtml: this.md.render(this.state.content)
         });
     };
     returnEdit = () => {
@@ -116,7 +138,6 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
         }
         this.setState({
             content: event.target.value,
-            contentHtml: this.md.render(event.target.value)
         });
     };
     render() {
@@ -198,5 +219,19 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
         );
     }
 }
+
+const overrideMarkdownParseToAdaptLink = (md: Remarkable, assetDir: string): void => {
+    md.renderer.rules.image = (tokens, idx, options /*, env */) => {
+        const srcUrl = path.resolve(assetDir, path.basename(tokens[idx].src));
+
+        const src = ' src="' + escapeHtml(srcUrl) + '"';
+        const title = tokens[idx].title ? (' title="' + escapeHtml(replaceEntities(tokens[idx].title)) + '"') : '';
+        const alt = ' alt="' + (tokens[idx].alt ? escapeHtml(replaceEntities(unescapeMd(tokens[idx].alt))) : '') + '"';
+        const suffix = options!.xhtmlOut ? ' /' : '';
+
+        // noinspection HtmlRequiredAltAttribute
+        return '<img' + src + alt + title + suffix + '>';
+    };
+};
 
 export default withStyles(useStyles)(NoteEditor);

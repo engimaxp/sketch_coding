@@ -25,9 +25,12 @@ const useStyles = (theme: Theme) => createStyles({
 interface NotePageState {
     inEdit: boolean;
 }
-class NotePage extends Component<WithStyles<typeof useStyles>, NotePageState> {
+interface NotePageProps extends WithStyles<typeof useStyles> {
+    localDirectory: string;
+}
+class NotePage extends Component<NotePageProps, NotePageState> {
 
-    constructor(props: Readonly<WithStyles<typeof useStyles>>) {
+    constructor(props: Readonly<NotePageProps>) {
         super(props);
         this.state = {
             inEdit: false
@@ -49,12 +52,13 @@ class NotePage extends Component<WithStyles<typeof useStyles>, NotePageState> {
         console.log(input);
     };
   render() {
-      const {classes} = this.props;
+      const {classes, localDirectory} = this.props;
       const {inEdit} = this.state;
       return (
           <div style={{height: `calc(100% - ${settings.indexPage.titleHeight}px)`}}>
               <CssBaseline />
-              {inEdit ? (<NoteEditor submit={this.getANewNote}/>) : (
+              {inEdit ? (<NoteEditor localDirector={localDirectory}
+                  submit={this.getANewNote}/>) : (
                   <IconButton
                       className={classes.avatar}
                       style={{

@@ -30,6 +30,7 @@ import MenuList from '@material-ui/core/MenuList';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import {clear} from '../actions/account';
 import {settings} from '../constants';
+import AccountData from '../types/Account';
 
 const styles = (theme: Theme) => createStyles({
     root: {
@@ -121,6 +122,7 @@ interface LocationWithStyles extends WithStyles<typeof styles> {
     search: string;
     hash: string;
     avatar: string;
+    userInfo: AccountData;
     backToIndex: () => void;
 }
 
@@ -138,6 +140,11 @@ class Routes extends React.Component<LocationWithStyles , NavBarState> {
             openPopOver: false,
             popOverAnchor: null
         };
+    }
+    componentWillMount(): void {
+        if (!this.props.userInfo || !this.props.userInfo.repo || !this.props.userInfo.repo.localDirectory) {
+            this.props.backToIndex();
+        }
     }
 
     handleDrawerOpen = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -274,7 +281,8 @@ const mapStateToProps = (state: RouterState & StoreState) => {
         pathname: state.router.location.pathname,
         search: state.router.location.search,
         hash: state.router.location.hash,
-        avatar: state.account.data.avatar
+        avatar: state.account.data.avatar,
+        userInfo: state.account.data
     });
 };
 

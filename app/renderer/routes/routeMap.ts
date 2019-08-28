@@ -1,4 +1,4 @@
-import NotePage from '../components/Page/Note';
+import NotePage from '../containers/notepage';
 import Login from '../containers/login';
 import Counter from '../containers/counter';
 import Weather from '../containers/weather';
