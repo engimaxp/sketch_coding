@@ -39,7 +39,35 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 13. add [react-select-material-ui](https://github.com/iulian-radu-at/react-select-material-ui) for material-ui auto complete select control
 
-14. add [codemirror]() for code edit and display
+14. add [codemirror](https://github.com/codemirror/codemirror) | [react-codemirror2](https://github.com/scniro/react-codemirror2) for code edit and display
+
+> Ctrl-F / Cmd-F
+> 
+> Start searching
+> 
+> Ctrl-G / Cmd-G
+> 
+> Find next
+> 
+> Shift-Ctrl-G / Shift-Cmd-G
+> 
+> Find previous
+> 
+> Shift-Ctrl-F / Cmd-Option-F
+> 
+> Replace
+> 
+> Shift-Ctrl-R / Shift-Cmd-Option-F
+> 
+> Replace all
+> 
+> Alt-F
+> 
+> Persistent search (dialog doesn't autoclose, enter to find next, Shift-Enter to find previous)
+> 
+> Alt-G
+> 
+> Jump to line
 
 15. add [remarkable](https://github.com/jonschlinkert/remarkable) for markdown edit control preview support
 

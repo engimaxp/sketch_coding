@@ -7,6 +7,9 @@ import Button from '@material-ui/core/Button';
 import withStyles from '@material-ui/core/styles/withStyles';
 import {settings} from '../../../../constants';
 import CreateIcon from '@material-ui/icons/Create';
+import SaveIcon from '@material-ui/icons/Save';
+import PageviewIcon from '@material-ui/icons/PageviewOutlined';
+import ReturnIcon from '@material-ui/icons/KeyboardReturn';
 import * as moment from 'moment';
 import Typography from '@material-ui/core/Typography';
 import hljs from 'highlight.js';
@@ -14,6 +17,7 @@ import 'highlight.js/styles/github.css';
 import * as path from 'path';
 import {escapeHtml, replaceEntities, unescapeMd} from 'remarkable/lib/common/utils';
 import Remarkable from 'remarkable';
+import CodeMirrorEditor from '../../../Control/CodeEditor/CodeMirrorEditor';
 const useStyles = (theme: Theme) => createStyles({
     '@global': {
         body: {
@@ -59,6 +63,15 @@ const useStyles = (theme: Theme) => createStyles({
     },
     wrapper: {
         height: `100%`
+    },
+    codeMirrorEditor: {
+        borderWidth: 0,
+        height: `calc(100% - ${settings.indexPage.titleHeight}px)`,
+        width: '100%',
+        resize: 'none',
+        flex: 1,
+        fontFamily: settings.markdownEditor.fontFamily,
+        fontSize: settings.markdownEditor.fontSize,
     }
 });
 interface NoteEditorState {
@@ -115,9 +128,9 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
     save = () => {
         this.props.submit(this.state.content);
     };
-    onChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-        if (!!event.target.value) {
-            let firstLine: string = event.target.value;
+    onChange = (value: string) => {
+        if (!!value) {
+            let firstLine: string = value;
             firstLine = firstLine.slice(0, firstLine.indexOf('\n'));
             if (firstLine.startsWith('#')) {
                 firstLine = firstLine.substring(firstLine.indexOf('#') + 1);
@@ -137,7 +150,7 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
             });
         }
         this.setState({
-            content: event.target.value,
+            content: value,
         });
     };
     render() {
@@ -148,21 +161,13 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
                 {inEdit ? (/* edit */
                     <div className={classes.editWrapper}>
                         <CssBaseline />
-                        <textarea
-                            className={'textarea_input'}
+                        <CodeMirrorEditor
+                            className={classes.codeMirrorEditor}
                             onChange={this.onChange}
-                            style={{
-                                borderWidth: 0,
-                                width: '100%',
-                                resize: 'none',
-                                flex: 1,
-                                paddingTop: settings.markdownEditor.padding,
-                                paddingLeft: settings.markdownEditor.padding,
-                                fontFamily: settings.markdownEditor.fontFamily,
-                                fontSize: settings.markdownEditor.fontSize,
-                            }}
-                            value={content}
-                            placeholder={'Type someting here...'}
+                            onBeforeChange={this.onChange}
+                            mode={'markdown'}
+                            theme={'idea'}
+                            content={content}
                         />
                         <Box
                             className={classes.titleBar}
@@ -181,11 +186,11 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
                                 <Button
                                     color="primary"
                                     onClick={this.preview}
-                                >Preview</Button>
+                                ><PageviewIcon/></Button>
                                 <Button
                                     color="secondary"
                                     onClick={this.save}
-                                >Save</Button>
+                                ><SaveIcon/></Button>
                             </Box>
                         </Box>
                     </div>) : (/* preview */
@@ -210,7 +215,7 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
                             <Button
                                 color="primary"
                                 onClick={this.returnEdit}
-                            >Return</Button>
+                            ><ReturnIcon/></Button>
                         </Box>
                     </div>
                 )
@@ -225,12 +230,13 @@ const overrideMarkdownParseToAdaptLink = (md: Remarkable, assetDir: string): voi
         const srcUrl = path.resolve(assetDir, path.basename(tokens[idx].src));
 
         const src = ' src="' + escapeHtml(srcUrl) + '"';
+        const style = ` style="width:100%;padding-right:${settings.markdownEditor.padding}px"`;
         const title = tokens[idx].title ? (' title="' + escapeHtml(replaceEntities(tokens[idx].title)) + '"') : '';
         const alt = ' alt="' + (tokens[idx].alt ? escapeHtml(replaceEntities(unescapeMd(tokens[idx].alt))) : '') + '"';
         const suffix = options!.xhtmlOut ? ' /' : '';
 
         // noinspection HtmlRequiredAltAttribute
-        return '<img' + src + alt + title + suffix + '>';
+        return '<img' + src + style + alt + title + suffix + '>';
     };
 };
 
