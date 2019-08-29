@@ -13,7 +13,6 @@ import SplitIcon from '@material-ui/icons/VerticalSplitOutlined';
 import SplitActiveIcon from '@material-ui/icons/VerticalSplit';
 import ReturnIcon from '@material-ui/icons/KeyboardReturn';
 import * as moment from 'moment';
-import Typography from '@material-ui/core/Typography';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github.css';
 import * as path from 'path';
@@ -22,6 +21,7 @@ import Remarkable from 'remarkable';
 import CodeMirrorEditor from '../../../Control/CodeEditor/CodeMirrorEditor';
 import SplitPane from 'react-split-pane';
 import './SplitPane.css';
+import MarkdownPreview from '../../../Control/MarkdownPreview/MarkdownPreview';
 
 const useStyles = (theme: Theme) => createStyles({
     '@global': {
@@ -86,6 +86,11 @@ const useStyles = (theme: Theme) => createStyles({
         flex: 1,
         fontFamily: settings.markdownEditor.fontFamily,
         fontSize: settings.markdownEditor.fontSize,
+    },
+    preview: {
+        width: '100%',
+        flex: 1,
+        height: '100%'
     }
 });
 interface NoteEditorState {
@@ -234,18 +239,9 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
                 {oneScreenPreviewDisplay ? (/* preview */
                     <div className={classes.editWrapper}>
                         <CssBaseline />
-                        <Typography
-                            style={{
-                                width: '100%',
-                                flex: 1,
-                                paddingTop: settings.markdownEditor.padding,
-                                paddingLeft: settings.markdownEditor.padding,
-                                fontFamily: settings.markdownEditor.fontFamily,
-                                fontSize: settings.markdownEditor.fontSize,
-                                overflowX: 'hidden',
-                                height: '100%'
-                            }}
-                            dangerouslySetInnerHTML={{__html: contentHtml}}
+                        <MarkdownPreview
+                            className={classes.preview}
+                            content={contentHtml}
                         />
                         <Box
                             className={classes.buttonBar2}
@@ -284,18 +280,9 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
                                 theme={'idea'}
                                 content={content}
                             />
-                            <Typography
-                                style={{
-                                    width: '100%',
-                                    flex: 1,
-                                    paddingTop: settings.markdownEditor.padding,
-                                    paddingLeft: settings.markdownEditor.padding,
-                                    fontFamily: settings.markdownEditor.fontFamily,
-                                    fontSize: settings.markdownEditor.fontSize,
-                                    overflowX: 'hidden',
-                                    height: '100%'
-                                }}
-                                dangerouslySetInnerHTML={{__html: contentHtml}}
+                            <MarkdownPreview
+                                className={classes.preview}
+                                content={contentHtml}
                             />
                         </SplitPane>
                         <Box
