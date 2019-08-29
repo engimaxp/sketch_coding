@@ -41,38 +41,40 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 14. add [codemirror](https://github.com/codemirror/codemirror) | [react-codemirror2](https://github.com/scniro/react-codemirror2) for code edit and display
 
-> Ctrl-F / Cmd-F
-> 
-> Start searching
-> 
-> Ctrl-G / Cmd-G
-> 
-> Find next
-> 
-> Shift-Ctrl-G / Shift-Cmd-G
-> 
-> Find previous
-> 
-> Shift-Ctrl-F / Cmd-Option-F
-> 
-> Replace
-> 
-> Shift-Ctrl-R / Shift-Cmd-Option-F
-> 
-> Replace all
-> 
-> Alt-F
-> 
-> Persistent search (dialog doesn't autoclose, enter to find next, Shift-Enter to find previous)
-> 
-> Alt-G
-> 
-> Jump to line
+        Ctrl-F / Cmd-F
+        
+        Start searching
+        
+        Ctrl-G / Cmd-G
+        
+        Find next
+        
+        Shift-Ctrl-G / Shift-Cmd-G
+        
+        Find previous
+        
+        Shift-Ctrl-F / Cmd-Option-F
+        
+        Replace
+        
+        Shift-Ctrl-R / Shift-Cmd-Option-F
+        
+        Replace all
+        
+        Alt-F
+        
+        Persistent search (dialog doesn't autoclose, enter to find next, Shift-Enter to find previous)
+        
+        Alt-G
+        
+        Jump to line
 
 15. add [remarkable](https://github.com/jonschlinkert/remarkable) for markdown edit control preview support
 
 16. [react-day-picker](http://react-day-picker.js.org/)
 
-17. [react-contenteditable](https://github.com/lovasoa/react-contenteditable)
+17. [ ] [react-contenteditable](https://github.com/lovasoa/react-contenteditable)
 
-18. [react-custom-scrollbars](https://github.com/malte-wessel/react-custom-scrollbars) | [baron](https://github.com/Diokuz/baron) | [perfect-scrollbar](https://github.com/mdbootstrap/perfect-scrollbar)
+18. [react-custom-scrollbars](https://github.com/malte-wessel/react-custom-scrollbars) | [baron](https://github.com/Diokuz/baron) | [perfect-scrollbar](https://github.com/mdbootstrap/perfect-scrollbar) for preview control scroll bar
+
+19. [react-split-pane](https://github.com/tomkp/react-split-pane)

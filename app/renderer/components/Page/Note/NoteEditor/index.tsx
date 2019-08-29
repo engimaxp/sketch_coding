@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import {createStyles, Theme, WithStyles} from '@material-ui/core';
 import Box from '@material-ui/core/Box';
@@ -9,6 +9,8 @@ import {settings} from '../../../../constants';
 import CreateIcon from '@material-ui/icons/Create';
 import SaveIcon from '@material-ui/icons/Save';
 import PageviewIcon from '@material-ui/icons/PageviewOutlined';
+import SplitIcon from '@material-ui/icons/VerticalSplitOutlined';
+import SplitActiveIcon from '@material-ui/icons/VerticalSplit';
 import ReturnIcon from '@material-ui/icons/KeyboardReturn';
 import * as moment from 'moment';
 import Typography from '@material-ui/core/Typography';
@@ -18,6 +20,9 @@ import * as path from 'path';
 import {escapeHtml, replaceEntities, unescapeMd} from 'remarkable/lib/common/utils';
 import Remarkable from 'remarkable';
 import CodeMirrorEditor from '../../../Control/CodeEditor/CodeMirrorEditor';
+import SplitPane from 'react-split-pane';
+import './SplitPane.css';
+
 const useStyles = (theme: Theme) => createStyles({
     '@global': {
         body: {
@@ -72,10 +77,21 @@ const useStyles = (theme: Theme) => createStyles({
         flex: 1,
         fontFamily: settings.markdownEditor.fontFamily,
         fontSize: settings.markdownEditor.fontSize,
+    },
+    codeMirrorSplitView: {
+        borderWidth: 0,
+        width: '100%',
+        height: `100%`,
+        resize: 'none',
+        flex: 1,
+        fontFamily: settings.markdownEditor.fontFamily,
+        fontSize: settings.markdownEditor.fontSize,
     }
 });
 interface NoteEditorState {
     inEdit: boolean; // is in preview mode
+    isSplit: boolean;
+    splitPos: number;
     title: string;
     content: string;
     contentHtml: string;
@@ -87,11 +103,13 @@ interface NoteEditorProps extends WithStyles<typeof useStyles> {
 class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
 
     private initialTitle: string = `Sketch_${moment().format('YYMMDD_HHmm')}`;
-    private md: any;
+    private readonly md: any;
     constructor(props: Readonly<NoteEditorProps>) {
         super(props);
         this.state = {
             inEdit: true,
+            isSplit: false,
+            splitPos: settings.markdownEditor.splitView.defaultWidth,
             title: this.initialTitle,
             content: '',
             contentHtml: '',
@@ -117,7 +135,13 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
     preview = () => {
         this.setState({
             inEdit: false,
-            contentHtml: this.md.render(this.state.content)
+        });
+    };
+    split = () => {
+        this.setState((prevState: NoteEditorState) => {
+            return {
+                isSplit: !prevState.isSplit,
+            };
         });
     };
     returnEdit = () => {
@@ -149,16 +173,25 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
                 title: this.initialTitle
             });
         }
+        let currentHtml = this.state.contentHtml;
+        try {
+            currentHtml = this.md.render(value);
+        } catch (e) {
+            console.log(e);
+        }
         this.setState({
             content: value,
+            contentHtml: currentHtml
         });
     };
     render() {
         const {classes} = this.props;
-        const {title, inEdit, content, contentHtml} = this.state;
+        const {title, isSplit, inEdit, content, contentHtml, splitPos} = this.state;
+        const oneScreenEditDisplay = !isSplit && inEdit;
+        const oneScreenPreviewDisplay = !isSplit && !inEdit;
         return (
             <div className={classes.wrapper}>
-                {inEdit ? (/* edit */
+                {oneScreenEditDisplay ? (/* edit */
                     <div className={classes.editWrapper}>
                         <CssBaseline />
                         <CodeMirrorEditor
@@ -188,12 +221,17 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
                                     onClick={this.preview}
                                 ><PageviewIcon/></Button>
                                 <Button
+                                    color="primary"
+                                    onClick={this.split}
+                                >{isSplit ? <SplitActiveIcon/> : <SplitIcon/>}</Button>
+                                <Button
                                     color="secondary"
                                     onClick={this.save}
                                 ><SaveIcon/></Button>
                             </Box>
                         </Box>
-                    </div>) : (/* preview */
+                    </div>) : null}
+                {oneScreenPreviewDisplay ? (/* preview */
                     <div className={classes.editWrapper}>
                         <CssBaseline />
                         <Typography
@@ -218,8 +256,74 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
                             ><ReturnIcon/></Button>
                         </Box>
                     </div>
-                )
-                }
+                ) : null}
+                {isSplit ? (
+                    <div className={classes.editWrapper}>
+                        <CssBaseline />
+                        <SplitPane split="vertical"
+                                   style={{
+                                       position: 'relative'
+                                   }}
+                                   pane1Style={{
+                                       width: `calc(100% - ${splitPos}px)`
+                                   }}
+                                   pane2Style={{
+                                       width: `${splitPos}px`
+                                   }}
+                                   minSize={settings.markdownEditor.splitView.minWidth}
+                                   maxSize={-settings.markdownEditor.splitView.minWidth}
+                                   primary="second"
+                                   defaultSize={splitPos}
+                                   onChange={ size => this.setState({splitPos: size}) }
+                                   className={classes.codeMirrorEditor}>
+                            <CodeMirrorEditor
+                                className={classes.codeMirrorSplitView}
+                                onChange={this.onChange}
+                                onBeforeChange={this.onChange}
+                                mode={'markdown'}
+                                theme={'idea'}
+                                content={content}
+                            />
+                            <Typography
+                                style={{
+                                    width: '100%',
+                                    flex: 1,
+                                    paddingTop: settings.markdownEditor.padding,
+                                    paddingLeft: settings.markdownEditor.padding,
+                                    fontFamily: settings.markdownEditor.fontFamily,
+                                    fontSize: settings.markdownEditor.fontSize,
+                                    overflowX: 'hidden',
+                                    height: '100%'
+                                }}
+                                dangerouslySetInnerHTML={{__html: contentHtml}}
+                            />
+                        </SplitPane>
+                        <Box
+                            className={classes.titleBar}
+                        >
+                            <Box style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                            }}>
+                                <CreateIcon className={classes.titleIcon}/>
+                                <FormLabel className={classes.title}>{title}</FormLabel>
+                            </Box>
+                            <Box
+                                className={classes.buttonBar}
+                            >
+                                <Button
+                                    color="primary"
+                                    onClick={this.split}
+                                >{isSplit ? <SplitActiveIcon/> : <SplitIcon/>}</Button>
+                                <Button
+                                    color="secondary"
+                                    onClick={this.save}
+                                ><SaveIcon/></Button>
+                            </Box>
+                        </Box>
+                    </div>
+                ) : null}
             </div>
         );
     }

@@ -4,7 +4,11 @@ export const settings = {
         fontSize: 14,
         fontFamily: 'Consolas, Courier New, monospace',
         padding: 10,
-        titleMaxLength: 25
+        titleMaxLength: 25,
+        splitView: {
+            defaultWidth: 400,
+            minWidth: 200
+        }
     },
     indexPage: {
         titleHeight: 48
