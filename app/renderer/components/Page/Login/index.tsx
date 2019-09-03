@@ -129,6 +129,9 @@ class Login extends React.Component<LoginWithStyles, LoginStatus> {
         if (dbAccounts && dbAccounts.length > 0) {
             this.setState({userInfos: dbAccounts});
         }
+        ipcRenderer.on('asynchronous-reply', (event: any, arg: any) => {
+            console.log(arg); // prints "pong"
+        });
     };
     clearAccountDB = async () => {
         console.log('Clearing database...');
@@ -237,10 +240,18 @@ class Login extends React.Component<LoginWithStyles, LoginStatus> {
                             onClick={this.clearAccountDB}>
                         Clear All Local User Data
                     </Button>
+                    <Button variant="contained" color="primary"
+                            style={{marginTop: 20}}
+                            onClick={this.testIPC}>
+                        TestIPC
+                    </Button>
                 </Box>
             </Container>
         );
     }
+    testIPC = () => {
+        ipcRenderer.send('asynchronous-message', 'ping');
+    };
 }
-
+const { ipcRenderer } = require('electron');
 export default withStyles(useStyles)(withError(Login));

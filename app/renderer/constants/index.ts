@@ -12,5 +12,6 @@ export const settings = {
     },
     indexPage: {
         titleHeight: 48
-    }
+    },
+    imageFileDirectory: 'pasteImage'
 };

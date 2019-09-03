@@ -84,10 +84,11 @@ interface CodeMirrorEditorProps {
     theme: string;
     content: string;
     onChange: (value: string) => void;
-    onBeforeChange: (value: string) => void;
+    onPaste: (event: Event) => Promise<string>;
 }
 export default function CodeMirrorEditor(props: CodeMirrorEditorProps) {
-    const { mode, theme, content, className, onChange, onBeforeChange } = props;
+    const { mode, theme, content, className,
+        onChange, onPaste } = props;
 
     return (
         <CodeMirror
@@ -96,6 +97,7 @@ export default function CodeMirrorEditor(props: CodeMirrorEditorProps) {
             options={{
                 mode,
                 theme,
+                autoCloseBrackets: true,
                 lineNumbers: true,
                 lineWrapping: true,
                 scrollbarStyle: 'overlay',
@@ -103,15 +105,21 @@ export default function CodeMirrorEditor(props: CodeMirrorEditorProps) {
                     'Ctrl-Q': (cm: any) => { cm.foldCode(cm.getCursor()); },
                     'Alt-F' : 'findPersistent'
                     },
-                foldGutter: true,
-                gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter']
-            }}
-            onBeforeChange={(editor, data, value) => {
-                onBeforeChange(value);
-            }}
-            onChange={(editor, data, value) => {
-                onChange(value);
-            }}
-        />
-    );
+                    foldGutter: true,
+                    gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter']
+                }}
+                onBeforeChange={(editor, data, value) => {
+                    onChange(value);
+                }}
+                onChange={(editor, data, value) => {
+                    onChange(value);
+                }}
+                onPaste={async (editor, event) => {
+                    const result = await onPaste(event);
+                    if (!!result) {
+                        editor.getDoc().replaceSelection(result);
+                    }
+                }}
+            />
+        );
 }

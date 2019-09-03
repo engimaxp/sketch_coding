@@ -22,7 +22,9 @@ import CodeMirrorEditor from '../../../Control/CodeEditor/CodeMirrorEditor';
 import SplitPane from 'react-split-pane';
 import './SplitPane.css';
 import MarkdownPreview from '../../../Control/MarkdownPreview/MarkdownPreview';
-
+import NativeImage = Electron.NativeImage;
+const {clipboard} = require('electron');
+import fs from 'fs';
 const useStyles = (theme: Theme) => createStyles({
     '@global': {
         body: {
@@ -189,6 +191,19 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
             contentHtml: currentHtml
         });
     };
+    onPaste = async (event: Event) => {
+        const image: NativeImage = clipboard.readImage();
+        const imageName = `${this.state.title}_pasteImage_${moment().format('YYMMDD_HHmm')}.png`;
+        const imagePath = this.props.localDirector;
+        if (!image.isEmpty()) {
+            if (!fs.existsSync(path.join(imagePath, settings.imageFileDirectory))) {
+                fs.mkdirSync(path.join(imagePath, settings.imageFileDirectory));
+            }
+            await fs.writeFileSync(path.join(imagePath, settings.imageFileDirectory, imageName), image.toPNG());
+            return `![${imageName}](${imageName})\n`;
+        }
+        return '';
+    };
     render() {
         const {classes} = this.props;
         const {title, isSplit, inEdit, content, contentHtml, splitPos} = this.state;
@@ -202,10 +217,10 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
                         <CodeMirrorEditor
                             className={classes.codeMirrorEditor}
                             onChange={this.onChange}
-                            onBeforeChange={this.onChange}
                             mode={'markdown'}
                             theme={'idea'}
                             content={content}
+                            onPaste={this.onPaste}
                         />
                         <Box
                             className={classes.titleBar}
@@ -275,10 +290,10 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
                             <CodeMirrorEditor
                                 className={classes.codeMirrorSplitView}
                                 onChange={this.onChange}
-                                onBeforeChange={this.onChange}
                                 mode={'markdown'}
                                 theme={'idea'}
                                 content={content}
+                                onPaste={this.onPaste}
                             />
                             <MarkdownPreview
                                 className={classes.preview}
@@ -318,7 +333,7 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
 
 const overrideMarkdownParseToAdaptLink = (md: Remarkable, assetDir: string): void => {
     md.renderer.rules.image = (tokens, idx, options /*, env */) => {
-        const srcUrl = path.resolve(assetDir, path.basename(tokens[idx].src));
+        const srcUrl = path.resolve(assetDir, settings.imageFileDirectory, path.basename(tokens[idx].src));
 
         const src = ' src="' + escapeHtml(srcUrl) + '"';
         const style = ` style="width:100%;padding-right:${settings.markdownEditor.padding}px"`;

@@ -67,3 +67,15 @@ class Electron {
 }
 
 new Electron().init();
+
+// 在主进程中.
+const { ipcMain } = require('electron');
+ipcMain.on('asynchronous-message', (event: any, arg: any) => {
+  console.log(arg); // prints "ping"
+  event.sender.send('asynchronous-reply', 'pong');
+});
+
+ipcMain.on('synchronous-message', (event: any, arg: any) => {
+  console.log(arg); // prints "ping"
+  event.returnValue = 'pong';
+});
