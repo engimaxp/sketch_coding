@@ -8,7 +8,8 @@ export const settings = {
         splitView: {
             defaultWidth: 400,
             minWidth: 200
-        }
+        },
+        keyMap: 'sublime'
     },
     indexPage: {
         titleHeight: 48

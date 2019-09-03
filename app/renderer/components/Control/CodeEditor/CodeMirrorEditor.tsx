@@ -76,8 +76,13 @@ import 'codemirror/addon/scroll/simplescrollbars.js';
 import 'codemirror/addon/scroll/simplescrollbars.css';
 import './CodeMirrorEditor.css';
 
+import 'codemirror/keymap/sublime.js';
+import 'codemirror/keymap/emacs.js';
+import 'codemirror/keymap/vim.js';
+
 import React from 'react';
 import {Controlled as CodeMirror} from 'react-codemirror2';
+import {settings} from '../../../constants';
 interface CodeMirrorEditorProps {
     mode: string;
     className: string;
@@ -101,9 +106,10 @@ export default function CodeMirrorEditor(props: CodeMirrorEditorProps) {
                 lineNumbers: true,
                 lineWrapping: true,
                 scrollbarStyle: 'overlay',
+                keyMap: settings.markdownEditor.keyMap,
                 extraKeys: {
                     'Ctrl-Q': (cm: any) => { cm.foldCode(cm.getCursor()); },
-                    'Alt-F' : 'findPersistent'
+                    'Alt-F' : 'findPersistent',
                     },
                     foldGutter: true,
                     gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter']
