@@ -104,7 +104,7 @@ interface NoteEditorState {
     contentHtml: string;
 }
 interface NoteEditorProps extends WithStyles<typeof useStyles> {
-    submit: (input: string) => void;
+    submit: (input: string, title: string) => void;
     localDirector: string;
 }
 class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
@@ -157,7 +157,7 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
         });
     };
     save = () => {
-        this.props.submit(this.state.content);
+        this.props.submit(this.state.content, this.state.title);
     };
     onChange = (value: string) => {
         if (!!value) {

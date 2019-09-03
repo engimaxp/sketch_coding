@@ -6,6 +6,11 @@ import {createStyles, Theme, WithStyles} from '@material-ui/core';
 import withStyles from '@material-ui/core/styles/withStyles';
 import NoteEditor from './NoteEditor';
 import {settings} from '../../../constants';
+import mkdirp from 'mkdirp';
+import fs from 'fs';
+import * as path from 'path';
+import * as moment from 'moment';
+
 const useStyles = (theme: Theme) => createStyles({
     '@global': {
         body: {
@@ -27,6 +32,7 @@ interface NotePageState {
 }
 interface NotePageProps extends WithStyles<typeof useStyles> {
     localDirectory: string;
+    saveANewNote: (diaryName: string, diaryLocation: string) => void;
 }
 class NotePage extends Component<NotePageProps, NotePageState> {
 
@@ -45,11 +51,19 @@ class NotePage extends Component<NotePageProps, NotePageState> {
                 inEdit: true
             });
     };
-    getANewNote = (input: string) => {
+    getANewNote = (input: string, title: string) => {
+        const rootDir = this.props.localDirectory;
+        const secondaryDir = `${moment().format('YYYY')}\\${moment().format('MM')}`;
+        if (!!input && !!title) {
+            if (!fs.existsSync(path.join(rootDir, secondaryDir))) {
+                mkdirp.sync(path.join(rootDir, secondaryDir));
+            }
+            fs.writeFileSync(path.join(rootDir, secondaryDir, `${title}.md`), input, {encoding: 'UTF-8'});
+            this.props.saveANewNote(`${title}.md`, secondaryDir);
+        }
         this.setState({
             inEdit: false
         });
-        console.log(input);
     };
   render() {
       const {classes, localDirectory} = this.props;
