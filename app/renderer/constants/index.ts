@@ -1,5 +1,6 @@
 export const settings = {
     pinSize: 4,
+    diaryPageDefaultSize: 20,
     markdownEditor: {
         fontSize: 14,
         fontFamily: 'Consolas, Courier New, monospace',

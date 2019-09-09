@@ -101,6 +101,7 @@ const convertSelectOptionsToMenuItems = (options: UserInfo[]) => {
 
 const mapRepo: ((repos: Repo[]) => AccountRepo[]) = (repos: Repo[]) => repos.map(x => {
     return {
+        repoId: x.id ? x.id : 0,
         targetRepo: x.repoName,
         repoUrl: x.repoCloneUrl,
         localDirectory: x.repoLocalUrl
@@ -173,6 +174,7 @@ class Login extends React.Component<LoginWithStyles, LoginStatus> {
             username: selectUser!.username,
             nickName: selectUser!.nickname,
             avatar: selectUser!.avatar,
+            userId: Number(userId),
             repo: mapRepo(selectUser!.repos).shift(),
         };
         this.props.successRedirect(accountData);

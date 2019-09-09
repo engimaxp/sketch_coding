@@ -293,10 +293,12 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
                     nickName: this.state.nickName,
                     avatar: this.state.avatarImage,
                     repo: {
+                        repoId: 0,
                         targetRepo: this.state.targetRepo!.name,
                         repoUrl: this.state.targetRepo!.clone_url,
                         localDirectory: (this.state.localPath === undefined ? '' : this.state.localPath),
                     },
+                    userId: 0
                 }));
                 break;
             default:

@@ -6,10 +6,12 @@ export default interface AccountData {
     nickName?: string;
     avatar?: string;
     repo?: AccountRepo;
+    userId: number;
 }
 
 export interface AccountRepo {
     targetRepo: string;
     repoUrl: string;
     localDirectory: string;
+    repoId: number;
 }

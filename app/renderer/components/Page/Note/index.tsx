@@ -10,6 +10,7 @@ import mkdirp from 'mkdirp';
 import fs from 'fs';
 import * as path from 'path';
 import * as moment from 'moment';
+import DiaryData from '../../../types/Diary';
 
 const useStyles = (theme: Theme) => createStyles({
     '@global': {
@@ -32,7 +33,8 @@ interface NotePageState {
 }
 interface NotePageProps extends WithStyles<typeof useStyles> {
     localDirectory: string;
-    saveANewNote: (diaryName: string, diaryLocation: string) => void;
+    repoId: number;
+    saveANewNote: (diary: DiaryData) => Promise<void>;
 }
 class NotePage extends Component<NotePageProps, NotePageState> {
 
@@ -59,7 +61,15 @@ class NotePage extends Component<NotePageProps, NotePageState> {
                 mkdirp.sync(path.join(rootDir, secondaryDir));
             }
             fs.writeFileSync(path.join(rootDir, secondaryDir, `${title}.md`), input, {encoding: 'UTF-8'});
-            this.props.saveANewNote(`${title}.md`, secondaryDir);
+            this.props.saveANewNote({
+                id: 0,
+                repoId: this.props.repoId,
+                title: `${title}.md`,
+                storeLocation: secondaryDir,
+                createTime: new Date(),
+                lastUpdateTime: new Date(),
+                tags: [],
+            });
         }
         this.setState({
             inEdit: false

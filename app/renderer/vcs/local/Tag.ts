@@ -21,8 +21,6 @@ export class Tag {
     diaryIds: number[];
     diaries: Diary[];
     childTags: Tag[];
-
-    tagsIds: number[];
     constructor(userId: number,
                 parentTagId: number,
                 tagName: string,
@@ -47,9 +45,32 @@ export class Tag {
         if (!this.id) {
             return;
         }
-        [this.childTags, this.diaries] = await Promise.all([
-            db.tags.where('parentTagId').equals(this.id).toArray(),
-            db.diaries.where('id').anyOf(this.diaryIds).toArray(),
-        ]);
+        const id: number = this.id;
+        db.transaction('r', db.tags, db.diaries, async() => {
+            [this.childTags, this.diaries] = await Promise.all([
+                db.tags.where('parentTagId').equals(id).toArray(),
+                db.diaries.where('id').anyOf(this.diaryIds).toArray(),
+            ]);
+        });
+    }
+
+    save() {
+        return db.transaction('rw', db.tags, db.diaries, async() => {
+            this.id = await db.tags.put(this);
+
+            [this.childTags, this.diaries] = await Promise.all([
+                db.tags.where('parentTagId').equals(this.id).toArray(),
+                db.diaries.where('id').anyOf(this.diaryIds).toArray(),
+            ]);
+        });
     }
 }
+
+export const getAllTags: (userId: number) => Promise<any> = async (userId: number) => {
+    return await db.transaction('r', [db.tags], async() => {
+        const thisPageDiaries = await db.tags
+            .where('userId').equals(userId).toArray();
+        await Promise.all (thisPageDiaries.map((tag: Tag) => tag.loadNavigationProperties()));
+        return thisPageDiaries;
+    });
+};

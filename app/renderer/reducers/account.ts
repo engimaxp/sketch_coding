@@ -10,6 +10,7 @@ export const INITIAL_STATE: AccountData = {
   nickName: undefined,
   avatar: undefined,
   repo: undefined,
+  userId: 0
 };
 
 export default function account(state: AccountState = {data: INITIAL_STATE}, action: accountActions): AccountState {
