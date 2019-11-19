@@ -2,6 +2,7 @@ import * as ConnectedReactRouter from 'connected-react-router';
 import WeatherData from './Weather';
 import AccountData from './Account';
 import DiaryData, {TagData} from './Diary';
+import NoteEditorStatus from './NoteEditor';
 
 export interface RouterState {
   router: ConnectedReactRouter.RouterState;
@@ -25,6 +26,7 @@ export interface StoreState {
   weather: WeatherState;
   account: AccountState;
   diary: DiaryState;
+  noteEditor: NoteEditorStatus;
 }
 
 export interface WeatherState {

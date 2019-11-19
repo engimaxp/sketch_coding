@@ -7,6 +7,7 @@ export default interface AccountData {
     avatar?: string;
     repo?: AccountRepo;
     userId: number;
+    inEdit?: boolean;
 }
 
 export interface AccountRepo {

@@ -4,13 +4,8 @@ import AddIcon from '@material-ui/icons/Add';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import {createStyles, Theme, WithStyles} from '@material-ui/core';
 import withStyles from '@material-ui/core/styles/withStyles';
-import NoteEditor from './NoteEditor';
+import NoteEditor from '../../../containers/noteEditor';
 import {settings} from '../../../constants';
-import mkdirp from 'mkdirp';
-import fs from 'fs';
-import * as path from 'path';
-import * as moment from 'moment';
-import DiaryData from '../../../types/Diary';
 
 const useStyles = (theme: Theme) => createStyles({
     '@global': {
@@ -34,55 +29,28 @@ interface NotePageState {
 interface NotePageProps extends WithStyles<typeof useStyles> {
     localDirectory: string;
     repoId: number;
-    saveANewNote: (diary: DiaryData) => Promise<void>;
+    inEdit: boolean;
+    changeInEdit: (inEdit: boolean) => void;
 }
 class NotePage extends Component<NotePageProps, NotePageState> {
 
     constructor(props: Readonly<NotePageProps>) {
         super(props);
         this.state = {
-            inEdit: false
+            inEdit: this.props.inEdit
         };
     }
 
-    componentDidMount() {
-
-    }
     createNewNote = () => {
-        this.setState({
-                inEdit: true
-            });
+        this.props.changeInEdit(true);
     };
-    getANewNote = (input: string, title: string) => {
-        const rootDir = this.props.localDirectory;
-        const secondaryDir = `${moment().format('YYYY')}\\${moment().format('MM')}`;
-        if (!!input && !!title) {
-            if (!fs.existsSync(path.join(rootDir, secondaryDir))) {
-                mkdirp.sync(path.join(rootDir, secondaryDir));
-            }
-            fs.writeFileSync(path.join(rootDir, secondaryDir, `${title}.md`), input, {encoding: 'UTF-8'});
-            this.props.saveANewNote({
-                id: 0,
-                repoId: this.props.repoId,
-                title: `${title}.md`,
-                storeLocation: secondaryDir,
-                createTime: new Date(),
-                lastUpdateTime: new Date(),
-                tags: [],
-            });
-        }
-        this.setState({
-            inEdit: false
-        });
-    };
-  render() {
-      const {classes, localDirectory} = this.props;
-      const {inEdit} = this.state;
+    render() {
+      const {classes, inEdit} = this.props;
       return (
           <div style={{height: `calc(100% - ${settings.indexPage.titleHeight}px)`}}>
               <CssBaseline />
-              {inEdit ? (<NoteEditor localDirector={localDirectory}
-                  submit={this.getANewNote}/>) : (
+              {inEdit ? (<NoteEditor />) : (
+                  /* Add a note icon */
                   <IconButton
                       className={classes.avatar}
                       style={{

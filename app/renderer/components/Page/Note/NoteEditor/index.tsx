@@ -25,6 +25,7 @@ import MarkdownPreview from '../../../Control/MarkdownPreview/MarkdownPreview';
 import NativeImage = Electron.NativeImage;
 const {clipboard} = require('electron');
 import fs from 'fs';
+import {NoteEditorState} from '../../../../types/NoteEditor';
 const useStyles = (theme: Theme) => createStyles({
     '@global': {
         body: {
@@ -95,33 +96,39 @@ const useStyles = (theme: Theme) => createStyles({
         height: '100%'
     }
 });
-interface NoteEditorState {
-    inEdit: boolean; // is in preview mode
-    isSplit: boolean;
-    splitPos: number;
-    title: string;
-    content: string;
-    contentHtml: string;
-}
 interface NoteEditorProps extends WithStyles<typeof useStyles> {
-    submit: (input: string, title: string) => void;
-    localDirector: string;
+    submit: (input: string, title: string, rootDir: string, repoId: number) => void;
+    returnToNoteList: () => void;
+    changeEditorMode: (inChange: boolean) => void;
+    changeSplitMode: () => void;
+    changeContent: (content: string, contentHtml: string) => void;
+    changeTitle: (title: string) => void;
+    localDirectory: string;
+    repoId: number;
+    editorStatus: NoteEditorState;
 }
-class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
 
-    private initialTitle: string = `Sketch_${moment().format('YYMMDD_HHmm')}`;
+const extractFirstLineTitle = (value: string) => {
+    let firstLine: string = value;
+    firstLine = firstLine.slice(0, firstLine.indexOf('\n'));
+    while (firstLine.startsWith('#')) {
+        firstLine = firstLine.substring(firstLine.indexOf('#') + 1);
+    }
+    while (firstLine.indexOf('<!--') >= 0) {
+        firstLine = firstLine.substring(0, firstLine.indexOf('<!--'));
+    }
+    firstLine = firstLine.trim();
+    if (firstLine.length > settings.markdownEditor.titleMaxLength) {
+        firstLine = firstLine.substring(0, settings.markdownEditor.titleMaxLength);
+    }
+    return firstLine;
+};
+
+class NoteEditor extends Component<NoteEditorProps> {
+
     private readonly md: any;
     constructor(props: Readonly<NoteEditorProps>) {
         super(props);
-        this.state = {
-            inEdit: true,
-            isSplit: false,
-            splitPos: settings.markdownEditor.splitView.defaultWidth,
-            title: this.initialTitle,
-            content: '',
-            contentHtml: '',
-        };
-
         this.md = new Remarkable({
             highlight: (str: string, lang: string) => {
                 if (lang && hljs.getLanguage(lang)) {
@@ -137,64 +144,37 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
                 return ''; // use external default escaping
             }
         });
-        overrideMarkdownParseToAdaptLink(this.md, this.props.localDirector);
+        overrideMarkdownParseToAdaptLink(this.md, this.props.localDirectory);
     }
-    preview = () => {
-        this.setState({
-            inEdit: false,
-        });
-    };
-    split = () => {
-        this.setState((prevState: NoteEditorState) => {
-            return {
-                isSplit: !prevState.isSplit,
-            };
-        });
-    };
-    returnEdit = () => {
-        this.setState({
-            inEdit: true
-        });
-    };
     save = () => {
-        this.props.submit(this.state.content, this.state.title);
+        this.props.submit(
+            this.props.editorStatus.content,
+            this.props.editorStatus.title,
+            this.props.localDirectory,
+            this.props.repoId);
     };
     onChange = (value: string) => {
         if (!!value) {
-            let firstLine: string = value;
-            firstLine = firstLine.slice(0, firstLine.indexOf('\n'));
-            if (firstLine.startsWith('#')) {
-                firstLine = firstLine.substring(firstLine.indexOf('#') + 1);
-            }
-            firstLine = firstLine.trim();
-            if (firstLine.length > settings.markdownEditor.titleMaxLength) {
-                firstLine = firstLine.substring(0, settings.markdownEditor.titleMaxLength);
-            }
+            const firstLine = extractFirstLineTitle(value);
             if (!!firstLine) {
-                this.setState({
-                    title: firstLine
-                });
+                this.props.changeTitle(firstLine);
             }
-        } else {
-            this.setState({
-                title: this.initialTitle
-            });
         }
-        let currentHtml = this.state.contentHtml;
+        let currentHtml = this.props.editorStatus.contentHtml;
         try {
             currentHtml = this.md.render(value);
         } catch (e) {
             console.log(e);
         }
-        this.setState({
-            content: value,
-            contentHtml: currentHtml
-        });
+        this.props.changeContent(value, currentHtml);
+    };
+    splitView = () => {
+        this.props.changeSplitMode();
     };
     onPaste = async (event: Event) => {
         const image: NativeImage = clipboard.readImage();
-        const imageName = `${this.state.title}_pasteImage_${moment().format('YYMMDD_HHmm')}.png`;
-        const imagePath = this.props.localDirector;
+        const imageName = `${this.props.editorStatus.title}_pasteImage_${moment().format('YYMMDD_HHmm')}.png`;
+        const imagePath = this.props.localDirectory;
         if (!image.isEmpty()) {
             if (!fs.existsSync(path.join(imagePath, settings.imageFileDirectory))) {
                 fs.mkdirSync(path.join(imagePath, settings.imageFileDirectory));
@@ -205,8 +185,8 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
         return '';
     };
     render() {
-        const {classes} = this.props;
-        const {title, isSplit, inEdit, content, contentHtml, splitPos} = this.state;
+        const {classes, changeEditorMode, returnToNoteList, editorStatus} = this.props;
+        const {title, isSplit, inEdit, content, contentHtml, splitPos} = editorStatus;
         const oneScreenEditDisplay = !isSplit && inEdit;
         const oneScreenPreviewDisplay = !isSplit && !inEdit;
         return (
@@ -238,11 +218,15 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
                             >
                                 <Button
                                     color="primary"
-                                    onClick={this.preview}
+                                    onClick={() => returnToNoteList()}
+                                ><ReturnIcon/></Button>
+                                <Button
+                                    color="primary"
+                                    onClick={() => changeEditorMode(false)}
                                 ><PageviewIcon/></Button>
                                 <Button
                                     color="primary"
-                                    onClick={this.split}
+                                    onClick={this.splitView}
                                 >{isSplit ? <SplitActiveIcon/> : <SplitIcon/>}</Button>
                                 <Button
                                     color="secondary"
@@ -263,7 +247,7 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
                         >
                             <Button
                                 color="primary"
-                                onClick={this.returnEdit}
+                                onClick={() => changeEditorMode(true)}
                             ><ReturnIcon/></Button>
                         </Box>
                     </div>
@@ -316,7 +300,11 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorState> {
                             >
                                 <Button
                                     color="primary"
-                                    onClick={this.split}
+                                    onClick={() => returnToNoteList()}
+                                ><ReturnIcon/></Button>
+                                <Button
+                                    color="primary"
+                                    onClick={this.splitView}
                                 >{isSplit ? <SplitActiveIcon/> : <SplitIcon/>}</Button>
                                 <Button
                                     color="secondary"
