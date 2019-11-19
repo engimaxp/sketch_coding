@@ -6,10 +6,6 @@ import {ThunkDispatch} from 'redux-thunk';
 import {changeEdit} from '../actions/note';
 
 const mapStateToProps = (state: StoreState) => ({
-    localDirectory: state.account.data.repo ?
-        state.account.data.repo!.localDirectory : '',
-    repoId: state.account.data.repo ?
-        state.account.data.repo!.repoId : 0,
     inEdit: state.noteEditor.inEdit ?
         state.noteEditor!.inEdit : false
 });
