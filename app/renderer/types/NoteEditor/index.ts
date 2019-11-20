@@ -1,6 +1,7 @@
 export default interface NoteEditorStatus {
     inEdit?: boolean;
     editorStatus: NoteEditorState;
+    listScrollTop: number;
 }
 
 export interface NoteEditorState {

@@ -1,6 +1,14 @@
+/* -- note lister page -- */
+
 // in note list container mode ,user can double click a note or click create note button to enter editor mode
 export const CHANGE_EDIT = 'changeEdit';
 export type CHANGE_EDIT = typeof CHANGE_EDIT;
+
+// scroll height change
+export const SCROLL_CHANGE = 'scrollChange';
+export type SCROLL_CHANGE = typeof SCROLL_CHANGE;
+
+/* -- note editor -- */
 
 // in editor mode ,user can switch between preview view and editor view
 export const EDITOR_CHANGE_EDIT = 'editorChangeEdit';

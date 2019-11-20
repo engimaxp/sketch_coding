@@ -5,7 +5,7 @@ import {
   CHANGE_EDIT,
   CHANGE_TITLE, CLEAR_ALL,
   EDITOR_CHANGE_EDIT,
-  EDITOR_CHANGE_SPLIT
+  EDITOR_CHANGE_SPLIT, SCROLL_CHANGE
 } from '../actions/note/action_type';
 import {settings} from '../constants';
 import * as moment from 'moment';
@@ -18,12 +18,15 @@ export const INITIAL_STATE: NoteEditorStatus = {
     title: `Sketch_${moment().format('YYMMDD_HHmm')}`,
     content: '',
     contentHtml: '',
-  }
+  },
+  listScrollTop: 0
 };
 
 export default function noteEditor(state: NoteEditorStatus = INITIAL_STATE, action: noteActions): NoteEditorStatus {
   if (action.type === CHANGE_EDIT) {
     return Object.assign({}, state ,  {inEdit: action.inChange});
+  } else if (action.type === SCROLL_CHANGE) {
+    return Object.assign({}, state ,  {listScrollTop: action.top});
   } else if (action.type === EDITOR_CHANGE_EDIT) {
     const newNoteEditorState: NoteEditorState = Object.assign({}, state.editorStatus ,  {inEdit: action.inChange});
     return Object.assign({}, state ,  {editorStatus: newNoteEditorState});

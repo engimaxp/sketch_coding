@@ -4,7 +4,7 @@ import {
   CHANGE_TITLE,
   CLEAR_ALL,
   EDITOR_CHANGE_EDIT,
-  EDITOR_CHANGE_SPLIT
+  EDITOR_CHANGE_SPLIT, SCROLL_CHANGE
 } from './action_type';
 
 export type noteActions = ChangeEdit |
@@ -12,7 +12,8 @@ export type noteActions = ChangeEdit |
     EditorChangeSplit|
     ChangeTitle|
     ChangeContent|
-    ClearAll;
+    ClearAll|
+    ScrollChange;
 
 interface ChangeEdit {
   type: CHANGE_EDIT;
@@ -70,4 +71,14 @@ interface ClearAll {
 
 export const clearAll = (): ClearAll => ({
   type: CLEAR_ALL,
+});
+
+interface ScrollChange {
+  type: SCROLL_CHANGE;
+  top: number;
+}
+
+export const scrollChange = (top: number): ScrollChange => ({
+  type: SCROLL_CHANGE,
+  top
 });

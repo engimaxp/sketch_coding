@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {Component, RefObject} from 'react';
 import IconButton from '@material-ui/core/IconButton';
 import AddIcon from '@material-ui/icons/Add';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -57,6 +57,8 @@ const useStyles = (theme: Theme) => createStyles({
 interface NotePageProps extends WithStyles<typeof useStyles> {
     inEdit: boolean;
     changeInEdit: (inEdit: boolean) => void;
+    listScrollTop: number;
+    scrollTop: (top: number) => void;
 }
 
 const featuredPosts = [
@@ -110,21 +112,28 @@ const featuredPosts = [
     },
 ];
 class NotePage extends Component<NotePageProps> {
-
+    private readonly scrollRef!: RefObject<Scrollbars>;
     constructor(props: Readonly<NotePageProps>) {
         super(props);
+        this.scrollRef = React.createRef();
+    }
+    componentDidMount(): void {
+        this.scrollRef!.current!.scrollTop(this.props.listScrollTop);
     }
 
     createNewNote = () => {
         this.props.changeInEdit(true);
     };
     render() {
-      const {classes, inEdit} = this.props;
+      const {classes, inEdit, scrollTop} = this.props;
       return (
           <div style={{marginTop: `${settings.indexPage.titleHeight / 3}`,
               height: `calc(100% - ${settings.indexPage.titleHeight}px)`}}>
               <CssBaseline />
-              <Scrollbars className={classes.preview}
+              <Scrollbars onScroll={() => {
+                  scrollTop(this.scrollRef!.current!.getScrollTop());
+              }}
+                          ref={this.scrollRef} className={classes.preview}
                           renderView={(props2: any) => (
                               <div {...props2} style={{ ...props2.style, overflowX: 'hidden' }} />
                           )}
