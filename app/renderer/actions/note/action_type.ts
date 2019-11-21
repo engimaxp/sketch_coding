@@ -18,6 +18,10 @@ export type EDITOR_CHANGE_EDIT = typeof EDITOR_CHANGE_EDIT;
 export const EDITOR_CHANGE_SPLIT = 'editorChangeSplit';
 export type EDITOR_CHANGE_SPLIT = typeof EDITOR_CHANGE_SPLIT;
 
+// in editor mode ,user can change split position
+export const EDITOR_CHANGE_SPLIT_POS = 'editorChangeSplitPos';
+export type EDITOR_CHANGE_SPLIT_POS = typeof EDITOR_CHANGE_SPLIT_POS;
+
 // change title
 export const CHANGE_TITLE = 'changeTitle';
 export type CHANGE_TITLE = typeof CHANGE_TITLE;
@@ -29,3 +33,13 @@ export type CHANGE_CONTENT = typeof CHANGE_CONTENT;
 // clear all state and set to initial
 export const CLEAR_ALL = 'clearAll';
 export type CLEAR_ALL = typeof CLEAR_ALL;
+
+/* -- code mirror editor -- */
+
+// code mirror change cursor
+export const CODE_MIRROR_CHANGE_CURSOR = 'codeMirrorChangeCursor';
+export type CODE_MIRROR_CHANGE_CURSOR = typeof CODE_MIRROR_CHANGE_CURSOR;
+
+// code mirror scroll
+export const CODE_MIRROR_CHANGE_SCROLL = 'codeMirrorChangeScroll';
+export type CODE_MIRROR_CHANGE_SCROLL = typeof CODE_MIRROR_CHANGE_SCROLL;

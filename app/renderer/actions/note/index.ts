@@ -2,10 +2,11 @@ import {
   CHANGE_CONTENT,
   CHANGE_EDIT,
   CHANGE_TITLE,
-  CLEAR_ALL,
+  CLEAR_ALL, CODE_MIRROR_CHANGE_CURSOR, CODE_MIRROR_CHANGE_SCROLL,
   EDITOR_CHANGE_EDIT,
-  EDITOR_CHANGE_SPLIT, SCROLL_CHANGE
+  EDITOR_CHANGE_SPLIT, EDITOR_CHANGE_SPLIT_POS, SCROLL_CHANGE
 } from './action_type';
+import {CodeMirrorPosition} from '../../types/NoteEditor';
 
 export type noteActions = ChangeEdit |
     EditorChangeEdit |
@@ -13,7 +14,10 @@ export type noteActions = ChangeEdit |
     ChangeTitle|
     ChangeContent|
     ClearAll|
-    ScrollChange;
+    ScrollChange|
+    CodeMirrorChangeCursor|
+    CodeMirrorChangeScroll|
+    EditorChangeSplitPos;
 
 interface ChangeEdit {
   type: CHANGE_EDIT;
@@ -41,6 +45,16 @@ interface EditorChangeSplit {
 
 export const editorChangeSplit = (): EditorChangeSplit => ({
   type: EDITOR_CHANGE_SPLIT,
+});
+
+interface EditorChangeSplitPos {
+  type: EDITOR_CHANGE_SPLIT_POS;
+  splitPos: number;
+}
+
+export const editorChangeSplitPos = (splitPos: number): EditorChangeSplitPos => ({
+  type: EDITOR_CHANGE_SPLIT_POS,
+  splitPos
 });
 
 interface ChangeTitle {
@@ -81,4 +95,24 @@ interface ScrollChange {
 export const scrollChange = (top: number): ScrollChange => ({
   type: SCROLL_CHANGE,
   top
+});
+
+interface CodeMirrorChangeCursor {
+  type: CODE_MIRROR_CHANGE_CURSOR;
+  codeCursor: CodeMirrorPosition;
+}
+
+export const codeMirrorChangeCursor = (codeCursor: CodeMirrorPosition): CodeMirrorChangeCursor => ({
+  type: CODE_MIRROR_CHANGE_CURSOR,
+  codeCursor
+});
+
+interface CodeMirrorChangeScroll {
+  type: CODE_MIRROR_CHANGE_SCROLL;
+  codeTop: number;
+}
+
+export const codeMirrorChangeScroll = (codeTop: number): CodeMirrorChangeScroll => ({
+  type: CODE_MIRROR_CHANGE_SCROLL,
+  codeTop
 });

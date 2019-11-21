@@ -18,7 +18,7 @@ import 'highlight.js/styles/github.css';
 import * as path from 'path';
 import {escapeHtml, replaceEntities, unescapeMd} from 'remarkable/lib/common/utils';
 import Remarkable from 'remarkable';
-import CodeMirrorEditor from '../../../Control/CodeEditor/CodeMirrorEditor';
+import CodeMirrorEditor from '../../../../containers/codeMirrorEditor';
 import SplitPane from 'react-split-pane';
 import './SplitPane.css';
 import MarkdownPreview from '../../../Control/MarkdownPreview/MarkdownPreview';
@@ -101,11 +101,19 @@ interface NoteEditorProps extends WithStyles<typeof useStyles> {
     returnToNoteList: () => void;
     changeEditorMode: (inChange: boolean) => void;
     changeSplitMode: () => void;
+    changeSplitPos: (pos: number) => void;
     changeContent: (content: string, contentHtml: string) => void;
     changeTitle: (title: string) => void;
     localDirectory: string;
     repoId: number;
     editorStatus: NoteEditorState;
+}
+
+interface NoteEditorStats {
+    title: string;
+    content: string;
+    contentHtml: string;
+    splitPos: number;
 }
 
 const extractFirstLineTitle = (value: string) => {
@@ -124,7 +132,7 @@ const extractFirstLineTitle = (value: string) => {
     return firstLine;
 };
 
-class NoteEditor extends Component<NoteEditorProps> {
+class NoteEditor extends Component<NoteEditorProps, NoteEditorStats> {
 
     private readonly md: any;
     constructor(props: Readonly<NoteEditorProps>) {
@@ -144,8 +152,21 @@ class NoteEditor extends Component<NoteEditorProps> {
                 return ''; // use external default escaping
             }
         });
+        this.state = {
+            title: this.props.editorStatus.title,
+            content: this.props.editorStatus.content,
+            contentHtml: this.props.editorStatus.contentHtml,
+            splitPos: this.props.editorStatus.splitPos
+        };
         overrideMarkdownParseToAdaptLink(this.md, this.props.localDirectory);
     }
+
+    componentWillUnmount(): void {
+        this.props.changeTitle(this.state.title);
+        this.props.changeContent(this.state.content, this.state.contentHtml);
+        this.props.changeSplitPos(this.state.splitPos);
+    }
+
     save = () => {
         this.props.submit(
             this.props.editorStatus.content,
@@ -157,16 +178,19 @@ class NoteEditor extends Component<NoteEditorProps> {
         if (!!value) {
             const firstLine = extractFirstLineTitle(value);
             if (!!firstLine) {
-                this.props.changeTitle(firstLine);
+                this.setState({title: firstLine});
             }
         }
-        let currentHtml = this.props.editorStatus.contentHtml;
+        let currentHtml = this.state.contentHtml;
         try {
             currentHtml = this.md.render(value);
         } catch (e) {
             console.log(e);
         }
-        this.props.changeContent(value, currentHtml);
+        this.setState({
+            content: value,
+            contentHtml: currentHtml,
+        });
     };
     splitView = () => {
         this.props.changeSplitMode();
@@ -186,7 +210,8 @@ class NoteEditor extends Component<NoteEditorProps> {
     };
     render() {
         const {classes, changeEditorMode, returnToNoteList, editorStatus} = this.props;
-        const {title, isSplit, inEdit, content, contentHtml, splitPos} = editorStatus;
+        const {isSplit, inEdit} = editorStatus;
+        const {content, contentHtml, title, splitPos} = this.state;
         const oneScreenEditDisplay = !isSplit && inEdit;
         const oneScreenPreviewDisplay = !isSplit && !inEdit;
         return (

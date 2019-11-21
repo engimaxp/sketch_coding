@@ -8,7 +8,15 @@ import fs from 'fs';
 import * as path from 'path';
 import * as moment from 'moment';
 import {addDiary} from '../actions/diary';
-import {changeContent, changeEdit, changeTitle, clearAll, editorChangeEdit, editorChangeSplit} from '../actions/note';
+import {
+    changeContent,
+    changeEdit,
+    changeTitle,
+    clearAll,
+    editorChangeEdit,
+    editorChangeSplit,
+    editorChangeSplitPos
+} from '../actions/note';
 
 const mapStateToProps = (state: StoreState) => ({
     editorStatus: state.noteEditor.editorStatus,
@@ -27,6 +35,9 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
     },
     changeSplitMode: () => {
         dispatch(editorChangeSplit());
+    },
+    changeSplitPos: (pos: number) => {
+        dispatch(editorChangeSplitPos(pos));
     },
     changeContent: (content: string, contentHtml: string) => {
         dispatch(changeContent(content, contentHtml));

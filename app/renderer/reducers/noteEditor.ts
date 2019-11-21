@@ -1,9 +1,9 @@
-import NoteEditorStatus, {NoteEditorState} from '../types/NoteEditor';
+import NoteEditorStatus, {CodeMirrorEditorState, NoteEditorState} from '../types/NoteEditor';
 import {noteActions} from '../actions/note';
 import {
   CHANGE_CONTENT,
   CHANGE_EDIT,
-  CHANGE_TITLE, CLEAR_ALL,
+  CHANGE_TITLE, CLEAR_ALL, CODE_MIRROR_CHANGE_CURSOR, CODE_MIRROR_CHANGE_SCROLL,
   EDITOR_CHANGE_EDIT,
   EDITOR_CHANGE_SPLIT, SCROLL_CHANGE
 } from '../actions/note/action_type';
@@ -16,7 +16,179 @@ export const INITIAL_STATE: NoteEditorStatus = {
     isSplit: false,
     splitPos: settings.markdownEditor.splitView.defaultWidth,
     title: `Sketch_${moment().format('YYMMDD_HHmm')}`,
-    content: '',
+    codeMirrorEditorState: {
+      scrollPosition: 0,
+      cursorPosition: {
+        ch: 0,
+        line: 0,
+        sticky: undefined,
+      },
+    },
+    content: '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。' +
+        '你好，订单状态 @{69:订单状态} 。#TXT{Attr:[Color:#2196f3 ],Text:这里' +
+        ',Link:} tu:#IMG{Text:tuTxt,Link:hh://end} 请点击链接 #HREF{Text:退订' +
+        '链接,Link:http://o.ctrip.com/refund/1}或者联系客服人员 #TEL{Text:1001523525,Link:}。谢谢。',
     contentHtml: '',
   },
   listScrollTop: 0
@@ -43,7 +215,25 @@ export default function noteEditor(state: NoteEditorStatus = INITIAL_STATE, acti
       contentHtml: action.contentHtml,
     });
     return Object.assign({}, state ,  {editorStatus: newNoteEditorState});
-  } else if (action.type === CLEAR_ALL) {
+  } else if (action.type === CODE_MIRROR_CHANGE_CURSOR) {
+    const codeMirrorEditorStateData: CodeMirrorEditorState =
+        Object.assign({}, state.editorStatus.codeMirrorEditorState, {
+      cursorPosition: action.codeCursor
+    });
+    const newNoteEditorState: NoteEditorState = Object.assign({}, state.editorStatus ,  {
+      codeMirrorEditorState: codeMirrorEditorStateData,
+    });
+    return Object.assign({}, state ,  {editorStatus: newNoteEditorState});
+  } else if (action.type === CODE_MIRROR_CHANGE_SCROLL) {
+    const codeMirrorEditorStateData: CodeMirrorEditorState =
+        Object.assign({}, state.editorStatus.codeMirrorEditorState, {
+      scrollPosition: action.codeTop
+    });
+    const newNoteEditorState: NoteEditorState = Object.assign({}, state.editorStatus ,  {
+      codeMirrorEditorState: codeMirrorEditorStateData,
+    });
+    return Object.assign({}, state ,  {editorStatus: newNoteEditorState});
+  }  else if (action.type === CLEAR_ALL) {
     return Object.assign({}, INITIAL_STATE);
   } else {
     return state;

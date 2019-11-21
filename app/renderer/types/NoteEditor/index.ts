@@ -11,4 +11,16 @@ export interface NoteEditorState {
     title: string;
     content: string;
     contentHtml: string;
+    codeMirrorEditorState: CodeMirrorEditorState;
+}
+
+export interface CodeMirrorEditorState {
+    scrollPosition: number;
+    cursorPosition: CodeMirrorPosition;
+}
+
+export interface CodeMirrorPosition {
+    ch: number;
+    line: number;
+    sticky?: string;
 }

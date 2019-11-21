@@ -80,9 +80,11 @@ import 'codemirror/keymap/sublime.js';
 import 'codemirror/keymap/emacs.js';
 import 'codemirror/keymap/vim.js';
 
-import React from 'react';
+import React, {Component} from 'react';
 import {Controlled as CodeMirror} from 'react-codemirror2';
 import {settings} from '../../../constants';
+import * as codemirror from 'codemirror';
+import {CodeMirrorPosition} from '../../../types/NoteEditor';
 interface CodeMirrorEditorProps {
     mode: string;
     className: string;
@@ -90,26 +92,76 @@ interface CodeMirrorEditorProps {
     content: string;
     onChange: (value: string) => void;
     onPaste: (event: Event) => Promise<string>;
+    scrollPosition: number;
+    cursorPosition: CodeMirror.Position;
+    changeCursor: (cursor: CodeMirrorPosition) => void;
+    changeScrollPosition: (scrollPosition: number) => void;
 }
-export default function CodeMirrorEditor(props: CodeMirrorEditorProps) {
-    const { mode, theme, content, className,
-        onChange, onPaste } = props;
+interface CodeMirrorEditorStats {
+    scrollPosition: number;
+    cursorPosition: CodeMirror.Position;
+}
+export default class CodeMirrorEditor extends Component<CodeMirrorEditorProps, CodeMirrorEditorStats> {
 
-    return (
-        <CodeMirror
-            className={className}
-            value={content}
-            options={{
-                mode,
-                theme,
-                autoCloseBrackets: true,
-                lineNumbers: true,
-                lineWrapping: true,
-                scrollbarStyle: 'overlay',
-                keyMap: settings.markdownEditor.keyMap,
-                extraKeys: {
-                    'Ctrl-Q': (cm: any) => { cm.foldCode(cm.getCursor()); },
-                    'Alt-F' : 'findPersistent',
+    constructor(props: CodeMirrorEditorProps) {
+        super(props);
+        this.state = {
+            cursorPosition: this.props.cursorPosition,
+            scrollPosition: this.props.scrollPosition
+        };
+    }
+    componentWillUnmount(): void {
+        console.log(`unmount ${this.state.cursorPosition}, ${this.state.scrollPosition}`);
+        this.props.changeCursor(this.state.cursorPosition);
+        this.props.changeScrollPosition(this.state.scrollPosition);
+    }
+
+    render() {
+        const {
+            mode, theme, content, className,
+            onChange, onPaste
+        } = this.props;
+        const { cursorPosition, scrollPosition} = this.state;
+
+        return (
+            <CodeMirror
+                editorDidMount={(editor: codemirror.Editor, value: string, cb: () => void) => {
+                    editor.scrollTo(0, scrollPosition);
+                    editor.focus();
+                    editor.getDoc().setCursor({
+                        ch: cursorPosition.ch,
+                        line: cursorPosition.line,
+                        sticky: cursorPosition.sticky
+                    });
+                }}
+                editorWillUnmount={(lib: any) => {
+                    console.log(lib);
+                }}
+                onCursorActivity={(editor: codemirror.Editor) => {
+                    console.log(editor.getDoc().getCursor());
+                    this.setState({
+                        cursorPosition: (Object.assign({}, editor.getDoc().getCursor())) as CodeMirrorPosition
+                    });
+                }}
+                className={className}
+                value={content}
+                onScroll={(editor: codemirror.Editor, data: codemirror.ScrollInfo) => {
+                    this.setState({scrollPosition: data.top});
+                    console.log(data.top);
+                }}
+                options={{
+                    mode,
+                    theme,
+                    autoCloseBrackets: true,
+                    lineNumbers: true,
+                    lineWrapping: true,
+                    scrollbarStyle: 'overlay',
+                    keyMap: settings.markdownEditor.keyMap,
+                    extraKeys: {
+                        'Ctrl-Q': (cm: any) => {
+                            cm.foldCode(cm.getCursor());
+                        },
+                        'Alt-F': 'findPersistent',
                     },
                     foldGutter: true,
                     gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter']
@@ -128,4 +180,5 @@ export default function CodeMirrorEditor(props: CodeMirrorEditorProps) {
                 }}
             />
         );
+    }
 }
