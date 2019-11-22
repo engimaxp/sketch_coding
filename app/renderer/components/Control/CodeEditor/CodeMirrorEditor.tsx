@@ -126,13 +126,13 @@ export default class CodeMirrorEditor extends Component<CodeMirrorEditorProps, C
         return (
             <CodeMirror
                 editorDidMount={(editor: codemirror.Editor, value: string, cb: () => void) => {
-                    editor.scrollTo(0, scrollPosition);
                     editor.focus();
                     editor.getDoc().setCursor({
                         ch: cursorPosition.ch,
                         line: cursorPosition.line,
                         sticky: cursorPosition.sticky
                     });
+                    editor.scrollTo(0, scrollPosition);
                 }}
                 editorWillUnmount={(lib: any) => {
                     console.log(lib);
