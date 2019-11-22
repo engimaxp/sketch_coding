@@ -135,10 +135,8 @@ export default class CodeMirrorEditor extends Component<CodeMirrorEditorProps, C
                     editor.scrollTo(0, scrollPosition);
                 }}
                 editorWillUnmount={(lib: any) => {
-                    console.log(lib);
                 }}
                 onCursorActivity={(editor: codemirror.Editor) => {
-                    console.log(editor.getDoc().getCursor());
                     this.setState({
                         cursorPosition: (Object.assign({}, editor.getDoc().getCursor())) as CodeMirrorPosition
                     });
@@ -147,7 +145,6 @@ export default class CodeMirrorEditor extends Component<CodeMirrorEditorProps, C
                 value={content}
                 onScroll={(editor: codemirror.Editor, data: codemirror.ScrollInfo) => {
                     this.setState({scrollPosition: data.top});
-                    console.log(data.top);
                 }}
                 options={{
                     mode,

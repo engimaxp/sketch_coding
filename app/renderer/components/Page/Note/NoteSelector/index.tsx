@@ -40,6 +40,9 @@ const useStyles = (theme: Theme) => createStyles({
     cardDetails: {
         flex: 1,
     },
+    cardContent: {
+        padding: theme.spacing(1, 1, 1, 1)
+    },
     cardMedia: {
         width: 160,
     },
@@ -49,7 +52,7 @@ const useStyles = (theme: Theme) => createStyles({
         height: `calc(100% - ${settings.indexPage.titleHeight}px)`
     },
     listContainer: {
-        paddingTop: `${settings.indexPage.titleHeight / 3}px`,
+        padding: theme.spacing(0, 0, 0, 0)
     }
 });
 interface NoteSelectorProps extends WithStyles<typeof useStyles> {
@@ -149,24 +152,24 @@ class NoteSelector extends Component<NoteSelectorProps, NoteSelectorState> {
                                                      className="track-horizontal"/>}
                           style={{ width: `calc(100%-${settings.markdownEditor.padding}px)`}}>
                   <Container maxWidth="lg" className={classes.listContainer}>
-                      <Grid container spacing={4}>
+                      <Grid container spacing={0}>
                           {featuredPosts.map(post => (
                               <Grid item key={post.title} xs={12} md={6}>
                                   <CardActionArea component="a" href="#">
-                                      <Card className={classes.card}>
+                                      <Card className={classes.card}
+                                            elevation={0}
+                                            square={false}
+                                      >
                                           <div className={classes.cardDetails}>
-                                              <CardContent>
-                                                  <Typography component="h2" variant="h5">
+                                              <CardContent className={classes.cardContent}>
+                                                  <Typography component="div"
+                                                              variant="h5"
+                                                              color={'primary'}
+                                                  >
                                                       {post.title}
                                                   </Typography>
-                                                  <Typography variant="subtitle1" color="textSecondary">
-                                                      {post.date}
-                                                  </Typography>
-                                                  <Typography variant="subtitle1" paragraph>
+                                                  <Typography variant="body2" paragraph>
                                                       {post.description}
-                                                  </Typography>
-                                                  <Typography variant="subtitle1" color="primary">
-                                                      Continue reading...
                                                   </Typography>
                                               </CardContent>
                                           </div>
