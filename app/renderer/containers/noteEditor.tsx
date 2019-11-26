@@ -51,7 +51,14 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
             if (!fs.existsSync(path.join(rootDir, secondaryDir))) {
                 mkdirp.sync(path.join(rootDir, secondaryDir));
             }
-            fs.writeFileSync(path.join(rootDir, secondaryDir, `${title}.md`), input, {encoding: 'UTF-8'});
+            // same directory file name can not be same
+            let currentFileName = `${title}.md`;
+            let count = 1;
+            while (fs.existsSync(path.join(rootDir, secondaryDir, currentFileName))) {
+                currentFileName = `${title}_${count}.md`;
+                count++;
+            }
+            fs.writeFileSync(path.join(rootDir, secondaryDir, currentFileName), input, {encoding: 'UTF-8'});
             dispatch(await addDiary({
                 id: 0,
                 repoId,
