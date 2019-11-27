@@ -1,16 +1,9 @@
 import fs from 'fs';
 import path from 'path';
+import {escapedNewline, generateReadmeMarkDown, generateTagInfoMarkDown, LocalFileInfo} from './BasicInfoGenerator';
 
 const md = 'README.md';
-const excapedNewline = process.platform === 'win32' ? '\r\n' : '\n';
-
-export interface LocalFileInfo {
-    year: number;
-    month: number;
-    fileName: string;
-    birthTime: Date;
-    id: string;
-}
+const tagInfoMd = 'tag_info.md';
 
 const dirTraverseSync = (filePath: string, subDirectoryFunction: ((subDir: string, dirName: string) => void)) => {
     if (!subDirectoryFunction || !filePath) {
@@ -40,25 +33,29 @@ const fileTraverseSync = (filePath: string, fileFunction: ((fileName: string, bi
         }
     });
 };
-const filePattern: RegExp = new RegExp(/\s+-\s+\[(.+)\]\(\/(\d+)\/(\d+)\/(.+)\)\s*`(.+)`/);
-export const searchAndBuildIndexReadme = async (pathInfo: string) => {
+const filePattern: RegExp = new RegExp(/\s+-\s+\[(.+)\]\(\/(\d+)\/(\d+)\/(.+)\)\s*(\[(.*)\])?\s*`(.+)`/);
+export const searchAndBuildIndexReadme = async (repoName: string, pathInfo: string) => {
     // read the readme file
     const readmeFilePath: string = path.join(pathInfo, md);
-    const originFileInfo: LocalFileInfo[] = [];
+    const tagInfoFilePath: string = path.join(pathInfo, tagInfoMd);
+    const originFileInfoMap: {[key: string]: LocalFileInfo} = {};
+    const tagFileMap: {[key: string]: LocalFileInfo[]} = {};
     const fileExist: boolean = await fs.existsSync(readmeFilePath);
     if (fileExist) {
         const readmeOrigin: string = await fs.readFileSync(readmeFilePath, {encoding: 'utf-8', flag: 'r'});
-        readmeOrigin.split(excapedNewline).map(line => {
+        readmeOrigin.split(escapedNewline).map(line => {
             if (filePattern.test(line)) {
                 const fileInfoRaw: RegExpExecArray | null = filePattern.exec(line);
                 if (!!fileInfoRaw) {
-                    originFileInfo.push({
+                    const key = fileInfoRaw[2] + fileInfoRaw[3] + fileInfoRaw[4];
+                    originFileInfoMap[key] = {
                         fileName: fileInfoRaw[4],
                         year: Number(fileInfoRaw[2]),
                         month: Number(fileInfoRaw[3]),
-                        birthTime: new Date(fileInfoRaw[5]),
-                        id: fileInfoRaw[2] + fileInfoRaw[3] + fileInfoRaw[4]
-                    });
+                        birthTime: new Date(fileInfoRaw[7]),
+                        id: key,
+                        tags: fileInfoRaw[6]
+                    };
                 }
             }
         });
@@ -73,52 +70,44 @@ export const searchAndBuildIndexReadme = async (pathInfo: string) => {
                 if (month > 0) {
                     await fileTraverseSync(monthSubDir, async (fileName, birthDate) => {
                         const currentId = year.toString() + month.toString().padStart(2, '0') + fileName;
-                        const originItem = originFileInfo.find(x => x.id === currentId);
+                        const originItem = originFileInfoMap[currentId];
+                        let tags = '';
                         let currentBirthDate = birthDate;
                         if (!!originItem) {
                             currentBirthDate = originItem.birthTime;
+                            tags = originItem.tags;
                         } else {
                             currentBirthDate.setUTCFullYear(year);
                             currentBirthDate.setMonth(month - 1);
                         }
-                        localFileInfo.push({
+                        const currentItem = {
                             year,
                             month,
                             fileName,
                             birthTime: currentBirthDate,
-                            id: currentId
-                        });
+                            id: currentId,
+                            tags
+                        };
+                        localFileInfo.push(currentItem);
+                        if (!!tags) {
+                            tags.split(',').map(tag => {
+                                if (!tagFileMap[tag]) {
+                                    tagFileMap[tag] = [];
+                                }
+                                tagFileMap[tag].push(currentItem);
+                            });
+                        }
                     });
                 }
             });
         }
     });
-    // rewrite to readme file
+    // rewrite to readme and tagInfo file
     if (localFileInfo.length > 0) {
-        const readme: string = generateReadmeMarkDown(pathInfo.substring(pathInfo.lastIndexOf('\\') + 1,
-            pathInfo.length), localFileInfo);
+        const readme: string = generateReadmeMarkDown(repoName, localFileInfo);
         await fs.writeFileSync(readmeFilePath, readme, {encoding: 'utf-8'});
+        const tagInfo: string = generateTagInfoMarkDown(repoName, tagFileMap);
+        await fs.writeFileSync(tagInfoFilePath, tagInfo, {encoding: 'utf-8'});
     }
-};
-const generateReadmeMarkDown = (title: string, localFileInfo: LocalFileInfo[]) => {
-    let readme: string = `# ${title}` + excapedNewline + excapedNewline;
-    let currentYear: number = 0;
-    let currentMonth: number = 0;
-    localFileInfo.sort((a, b) => ((a.year - b.year) === 0) ? (a.month - b.month) : (a.year - b.year))
-        .map(file => {
-            if (currentYear !== file.year) {
-                currentYear = file.year;
-                currentMonth = 0;
-                readme += `- ${currentYear}` + excapedNewline;
-            }
-            if (currentMonth !== file.month) {
-                currentMonth = file.month;
-                readme += `  - ${currentMonth}` + excapedNewline;
-            }
-            readme += `    - [${file.fileName.substring(0, file.fileName.length - 3)}]`
-                + `(/${currentYear}/${currentMonth}/${file.fileName})`
-                + ` \`${file.birthTime.toISOString()}\``
-                + excapedNewline;
-        });
-    return readme;
+    return localFileInfo;
 };

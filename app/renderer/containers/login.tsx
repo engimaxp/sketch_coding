@@ -16,7 +16,7 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
     successRedirect: (account: AccountData) => {
         dispatch(set(account));
         dispatch(push(nestedIndexPage.link));
-  },
+    },
     checkLogin: async (account: AccountData) => {
         let userInfos: UserInfo[] = [];
         if (!!account && !!account.username) {

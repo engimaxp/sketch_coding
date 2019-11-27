@@ -9,8 +9,10 @@ import {
 } from '../actions/note/action_type';
 import {settings} from '../constants';
 import * as moment from 'moment';
+import Page from '../vcs/local/Page';
 export const INITIAL_STATE: NoteEditorStatus = {
   inEdit: false,
+  page: new Page(1, settings.diaryPageDefaultSize),
   editorStatus: {
     inEdit: true,
     isSplit: false,

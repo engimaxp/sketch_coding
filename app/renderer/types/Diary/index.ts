@@ -9,6 +9,8 @@ export default interface DiaryData {
     createTime: Date;
     lastUpdateTime: Date;
     tags: TagData[];
+    isModified?: boolean;
+    isDeleted?: boolean;
 }
 
 export interface TagData {

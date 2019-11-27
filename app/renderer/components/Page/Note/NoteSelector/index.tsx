@@ -14,6 +14,7 @@ import Hidden from '@material-ui/core/Hidden';
 import Container from '@material-ui/core/Container';
 
 import { Scrollbars } from 'react-custom-scrollbars';
+import Timeout = NodeJS.Timeout;
 const useStyles = (theme: Theme) => createStyles({
     '@global': {
         body: {
@@ -118,6 +119,7 @@ const featuredPosts = [
 ];
 class NoteSelector extends Component<NoteSelectorProps, NoteSelectorState> {
     private readonly scrollRef!: RefObject<Scrollbars>;
+    private timeoutFunction: Timeout;
     constructor(props: Readonly<NoteSelectorProps>) {
         super(props);
         this.scrollRef = React.createRef();
@@ -127,9 +129,13 @@ class NoteSelector extends Component<NoteSelectorProps, NoteSelectorState> {
     }
     componentDidMount(): void {
         this.scrollRef!.current!.scrollTop(this.props.listScrollTop);
+        this.timeoutFunction = setInterval(() => {
+            console.log('hello');
+        }, 3000);
     }
     componentWillUnmount(): void {
         this.props.scrollTop(this.state.listScrollTop);
+        clearInterval(this.timeoutFunction);
     }
 
     createNewNote = () => {

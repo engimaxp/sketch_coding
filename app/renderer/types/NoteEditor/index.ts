@@ -1,7 +1,10 @@
+
+import Page from '../../vcs/local/Page';
 export default interface NoteEditorStatus {
     inEdit?: boolean;
     editorStatus: NoteEditorState;
     listScrollTop: number;
+    page: Page;
 }
 
 export interface NoteEditorState {

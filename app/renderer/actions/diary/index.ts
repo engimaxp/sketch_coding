@@ -5,7 +5,6 @@ import { INITIAL_DIARY_LIST,
 import DiaryData, {mapDataToDiary, mapDataToTag, mapToDiaryData, mapToTagData, TagData} from '../../types/Diary';
 import {Diary, getDiariesByPage, saveDiary} from '../../vcs/local/Diary';
 import Page from '../../vcs/local/Page';
-import {settings} from '../../constants';
 import {getAllTags, Tag} from '../../vcs/local/Tag';
 
 export type diaryActions = Query | Add | Update | Delete;
@@ -16,8 +15,15 @@ interface Query {
   tags?: TagData[];
 }
 
-export const query = async (userId: number, repoId: number): Promise<Query> => {
-  const diaries: Diary[] = await getDiariesByPage(new Page(1, settings.diaryPageDefaultSize), repoId);
+export const query = async (userId: number, repoId: number, pageInfo: Page): Promise<Query> => {
+  if (!userId || !repoId || !pageInfo) {
+    return ({
+      type: INITIAL_DIARY_LIST,
+      diaries: undefined,
+      tags: undefined
+    });
+  }
+  const diaries: Diary[] = await getDiariesByPage(pageInfo, repoId);
   const diaryDataList: DiaryData[] = diaries.map(diary => mapToDiaryData(diary));
   const tags: Tag[] = await getAllTags(userId);
   const tagDataList: TagData[] = tags.map(tag => mapToTagData(tag));

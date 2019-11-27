@@ -2,6 +2,6 @@
 
 describe('file only test', () => {
     it('test localFile', async () => {
-        // searchAndBuildIndexReadme(''); // test path here
+        // searchAndBuildIndexReadme(); // test path here
     });
 });
