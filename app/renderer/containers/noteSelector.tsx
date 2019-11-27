@@ -6,9 +6,10 @@ import {ThunkDispatch} from 'redux-thunk';
 import {changeEdit, scrollChange} from '../actions/note';
 import AccountData from '../types/Account';
 import DiaryData from '../types/Diary';
-import {LocalFileInfo, searchAndBuildIndexReadme} from '../vcs/file/LocalFileLoader';
+import {searchAndBuildIndexReadme} from '../vcs/file/LocalFileLoader';
 import Page from '../vcs/local/Page';
 import {query} from '../actions/diary';
+import {LocalFileInfo} from '../vcs/file/BasicInfoGenerator';
 
 const mapStateToProps = (state: StoreState) => ({
     inEdit: state.noteEditor.inEdit ?
@@ -36,7 +37,7 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
         }
         let filesRefreshed: LocalFileInfo[] = [];
         try {
-            filesRefreshed = await searchAndBuildIndexReadme(account.repo!.localDirectory);
+            filesRefreshed = await searchAndBuildIndexReadme(account.repo!.targetRepo, account.repo!.localDirectory);
         } catch (e) {
             console.log(e);
         }
