@@ -1,6 +1,11 @@
 import fs from 'fs';
 import path from 'path';
-import {escapedNewline, generateReadmeMarkDown, generateTagInfoMarkDown, LocalFileInfo} from './BasicInfoGenerator';
+import {
+    generateReadmeMarkDown,
+    generateTagInfoMarkDown,
+    LocalFileInfo, LocalTagInfo,
+    retrieveAllInfoFromReadMe, retrieveAllInfoFromTagInfo
+} from './BasicInfoGenerator';
 
 const md = 'README.md';
 const tagInfoMd = 'tag_info.md';
@@ -33,34 +38,16 @@ const fileTraverseSync = (filePath: string, fileFunction: ((fileName: string, bi
         }
     });
 };
-const filePattern: RegExp = new RegExp(/\s+-\s+\[(.+)\]\(\/(\d+)\/(\d+)\/(.+)\)\s*(\[(.*)\])?\s*`(.+)`/);
-export const searchAndBuildIndexReadme = async (repoName: string, pathInfo: string) => {
+
+export const searchAndBuildIndexReadme = async (repoName: string, pathInfo: string, userId: number) => {
     // read the readme file
     const readmeFilePath: string = path.join(pathInfo, md);
     const tagInfoFilePath: string = path.join(pathInfo, tagInfoMd);
-    const originFileInfoMap: {[key: string]: LocalFileInfo} = {};
-    const tagFileMap: {[key: string]: LocalFileInfo[]} = {};
-    const fileExist: boolean = await fs.existsSync(readmeFilePath);
-    if (fileExist) {
-        const readmeOrigin: string = await fs.readFileSync(readmeFilePath, {encoding: 'utf-8', flag: 'r'});
-        readmeOrigin.split(escapedNewline).map(line => {
-            if (filePattern.test(line)) {
-                const fileInfoRaw: RegExpExecArray | null = filePattern.exec(line);
-                if (!!fileInfoRaw) {
-                    const key = fileInfoRaw[2] + fileInfoRaw[3] + fileInfoRaw[4];
-                    originFileInfoMap[key] = {
-                        fileName: fileInfoRaw[4],
-                        year: Number(fileInfoRaw[2]),
-                        month: Number(fileInfoRaw[3]),
-                        birthTime: new Date(fileInfoRaw[7]),
-                        id: key,
-                        tags: fileInfoRaw[6]
-                    };
-                }
-            }
-        });
-    }
+    const originFileInfoMap = await retrieveAllInfoFromReadMe(readmeFilePath);
+    const tagMap: LocalTagInfo[] = await retrieveAllInfoFromTagInfo(tagInfoFilePath, userId);
     // traverse the directory structure
+    const currentFileInfoMap: {[key: string]: LocalFileInfo} = {};
+    const tagFileMap: {[key: string]: LocalFileInfo[]} = {};
     const localFileInfo: LocalFileInfo[] = [];
     await dirTraverseSync(pathInfo, async (yearSubDir, yearDirName) => {
         const year: number = Number(yearDirName);
@@ -89,6 +76,7 @@ export const searchAndBuildIndexReadme = async (repoName: string, pathInfo: stri
                             tags
                         };
                         localFileInfo.push(currentItem);
+                        currentFileInfoMap[currentId] = currentItem;
                         if (!!tags) {
                             tags.split(',').map(tag => {
                                 if (!tagFileMap[tag]) {
@@ -106,8 +94,10 @@ export const searchAndBuildIndexReadme = async (repoName: string, pathInfo: stri
     if (localFileInfo.length > 0) {
         const readme: string = generateReadmeMarkDown(repoName, localFileInfo);
         await fs.writeFileSync(readmeFilePath, readme, {encoding: 'utf-8'});
-        const tagInfo: string = generateTagInfoMarkDown(repoName, tagFileMap);
+    }
+    if (!!tagFileMap && Object.keys(tagFileMap).length > 0) {
+        const tagInfo: string = generateTagInfoMarkDown(repoName, tagFileMap, tagMap);
         await fs.writeFileSync(tagInfoFilePath, tagInfo, {encoding: 'utf-8'});
     }
-    return localFileInfo;
+    return currentFileInfoMap;
 };
