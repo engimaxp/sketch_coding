@@ -3,7 +3,7 @@
     * the users table. We can have methods on it that
     * we could call on retrieved database objects.
     */
-import {db} from './db';
+import {repository} from './repository';
 import {Repo} from './Repo';
 
 import AccountData from '../../types/Account';
@@ -33,16 +33,16 @@ export const getANewAccount: ((account: AccountData) => UserInfo|null) = (accoun
         account.avatar);
 };
 export const getAccounts = async (limitNumber: number) => {
-    return await db.transaction('r', [db.users, db.repos], async() => {
-        const firstUsers: any = await db.users.orderBy('id').limit(limitNumber)
+    return await repository.transaction('r', [repository.users, repository.repos], async() => {
+        const firstUsers: any = await repository.users.orderBy('id').limit(limitNumber)
             .toArray();
         await Promise.all (firstUsers.map((user: UserInfo) => user.loadNavigationProperties()));
         return firstUsers;
     });
 };
 export const getAccountById = async (id: string) => {
-    return await db.transaction('r', [db.users, db.repos], async() => {
-        const firstUser = await db.users.where('id').equals(id).first();
+    return await repository.transaction('r', [repository.users, repository.repos], async() => {
+        const firstUser = await repository.users.where('id').equals(id).first();
         if (!firstUser) {
             return undefined;
         }
@@ -78,15 +78,15 @@ export class UserInfo {
 
     async loadNavigationProperties() {
         [this.repos] = await Promise.all([
-            db.repos.where('userId').equals(this.id).toArray(),
+            repository.repos.where('userId').equals(this.id).toArray(),
         ]);
     }
 
     save() {
-        return db.transaction('rw', db.users, db.repos, async() => {
+        return repository.transaction('rw', repository.users, repository.repos, async() => {
 
             // Add or update our selves. If add, record this.id.
-            this.id = await db.users.put(this);
+            this.id = await repository.users.put(this);
 
             // Save all navigation properties (arrays of repos and phones)
             // Some may be new and some may be updates of existing objects.
@@ -94,14 +94,14 @@ export class UserInfo {
             // (record the result keys from the put() operations into emailIds and phoneIds
             //  so that we can find local deletes)
             const [repoIds] = await Promise.all ([
-                Promise.all(this.repos.map(repo => db.repos.put(repo))),
+                Promise.all(this.repos.map(repo => repository.repos.put(repo))),
             ]);
 
             // Was any email or phone number deleted from out navigation properties?
             // Delete any item in DB that reference us, but is not present
             // in our navigation properties:
             await Promise.all([
-                db.repos.where('userId').equals(this.id) // references us
+                repository.repos.where('userId').equals(this.id) // references us
                     .and(repo => repoIds.indexOf(repo.id || -1) === -1) // Not anymore in our array
                     .delete(),
             ]);

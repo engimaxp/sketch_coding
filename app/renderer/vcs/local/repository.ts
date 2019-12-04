@@ -38,8 +38,8 @@ export class AppDatabase extends Dexie {
         // This will make it possible to call loadEmailsAndPhones()
         // directly on retrieved database objects.
         dataBase.users.mapToClass(UserInfo);
-        dataBase.tags.mapToClass(Tag);
+        // dataBase.tags.mapToClass(Tag);
     }
 }
 
-export const db = new AppDatabase();
+export const repository = new AppDatabase();

@@ -1,4 +1,4 @@
-import {db} from './db';
+import {repository} from './repository';
 import {Diary} from './Diary';
 
 export interface Tag {
@@ -46,29 +46,29 @@ export class Tag {
             return;
         }
         const id: number = this.id;
-        db.transaction('r', db.tags, db.diaries, async() => {
+        repository.transaction('r', repository.tags, repository.diaries, async() => {
             [this.childTags, this.diaries] = await Promise.all([
-                db.tags.where('parentTagId').equals(id).toArray(),
-                db.diaries.where('id').anyOf(this.diaryIds).toArray(),
+                repository.tags.where('parentTagId').equals(id).toArray(),
+                repository.diaries.where('id').anyOf(this.diaryIds).toArray(),
             ]);
         });
     }
 
     save() {
-        return db.transaction('rw', db.tags, db.diaries, async() => {
-            this.id = await db.tags.put(this);
+        return repository.transaction('rw', repository.tags, repository.diaries, async() => {
+            this.id = await repository.tags.put(this);
 
             [this.childTags, this.diaries] = await Promise.all([
-                db.tags.where('parentTagId').equals(this.id).toArray(),
-                db.diaries.where('id').anyOf(this.diaryIds).toArray(),
+                repository.tags.where('parentTagId').equals(this.id).toArray(),
+                repository.diaries.where('id').anyOf(this.diaryIds).toArray(),
             ]);
         });
     }
 }
 
 export const getAllTags: (userId: number) => Promise<any> = async (userId: number) => {
-    return await db.transaction('r', [db.tags], async() => {
-        const thisPageDiaries = await db.tags
+    return await repository.transaction('r', [repository.tags], async() => {
+        const thisPageDiaries = await repository.tags
             .where('userId').equals(userId).toArray();
         await Promise.all (thisPageDiaries.map((tag: Tag) => tag.loadNavigationProperties()));
         return thisPageDiaries;

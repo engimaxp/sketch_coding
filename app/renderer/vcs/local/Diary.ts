@@ -1,9 +1,19 @@
 import {Tag} from './Tag';
-import {db} from './db';
+import {repository} from './repository';
 import Page from './Page';
 import AccountData from '../../types/Account';
-import {LocalFileInfo} from '../file/BasicInfoGenerator';
+import {LocalFileInfo, LocalTagInfo} from '../file/BasicInfoGenerator';
+import {FileTag} from '../file/LocalFileLoader';
+import DiaryData, {TagData} from '../../types/Diary';
 
+const loadNavigationProperties = async (diary: Diary) => {
+    if (!diary.id) {
+        return;
+    }
+    [diary.tags] = await Promise.all([
+        repository.tags.where('id').anyOf(diary.tagsIds).toArray(),
+    ]);
+};
 export class Diary {
     id?: number;
     repoId: number;
@@ -33,37 +43,28 @@ export class Diary {
             tags: {value: [], enumerable: false, writable: true },
         });
     }
-
-    async loadNavigationProperties() {
-        if (!this.id) {
-            return;
-        }
-        [this.tags] = await Promise.all([
-            db.tags.where('id').anyOf(this.tagsIds).toArray(),
-        ]);
-    }
-
 }
 
-export const saveDiary = (diary: Diary) => db.transaction('rw',
-    db.diaries,
-    db.tags,
+export const saveDiary = (diary: Diary) => repository.transaction('rw',
+    repository.diaries,
+    repository.tags,
     async () => {
-    const id = await db.diaries.put(diary);
+    const id = await repository.diaries.put(diary);
     diary.id = id;
     [diary.tags] = await Promise.all([
-        db.tags.where('id').anyOf(diary.tagsIds).toArray(),
+        repository.tags.where('id').anyOf(diary.tagsIds).toArray(),
     ]);
     return diary;
 });
 
 export const getDiariesByPage = async (page: Page, repoId: number) => {
-    return await db.transaction('r', [db.diaries], async() => {
-        const thisPageDiaries: any = await db.diaries
+    return await repository.transaction('r', [repository.diaries, repository.tags], async() => {
+        const thisPageDiaries: any = await repository.diaries
             .where('repoId').equals(repoId)
             .offset((page.index - 1) * page.size)
             .limit(page.size).toArray();
-        await Promise.all (thisPageDiaries.map((diary: Diary) => diary.loadNavigationProperties()));
+        console.log(thisPageDiaries);
+        await Promise.all (thisPageDiaries.map((diary: Diary) => loadNavigationProperties(diary)));
         return thisPageDiaries;
     });
 };
@@ -77,11 +78,48 @@ const mapToDiary = (account: AccountData, file: LocalFileInfo) => {
         []);
 };
 
-export const saveDiariesToDB = async (localFileInfoMap: {[key: string]: LocalFileInfo}, account: AccountData) => {
-    await db.transaction('rw', [db.diaries, db.tags], async() => {
+const refreshSaveTagToDB = async (parentTagId: number, tagMap: LocalTagInfo[], account: AccountData) => {
+    let currentTagId = 0;
+    if (!!tagMap && tagMap.length > 0) {
+        return currentTagId;
+    }
+    await repository.transaction('rw', [repository.tags], async() => {
+        tagMap.map(async (x: LocalTagInfo) => {
+            await repository.tags.add(new Tag(account.userId, parentTagId, x.tagName, x.tagImage, []));
+            const tag = await repository.tags.where('tagName').equals(x.tagName).first();
+            if (!!tag) {
+                currentTagId = tag!.id!;
+            }
+            if (!!x.childTags && x.childTags.length > 0) {
+                await refreshSaveTagToDB(currentTagId, x.childTags, account);
+            }
+        });
+    });
+    return currentTagId;
+};
+
+const clearTagDB = async (account: AccountData) => {
+    await repository.transaction('rw', [repository.tags], async() => {
+        await repository.tags.where('userId').equals(account.userId).delete();
+    });
+};
+
+export const saveDiariesAndTagsToDB = async (fileTag: FileTag, account: AccountData) => {
+    let deleteIds: number[] = [];
+    await clearTagDB(account);
+    // save tags first
+    await refreshSaveTagToDB(0, fileTag.tagMap, account);
+    // then save diary
+    await repository.transaction('rw', [repository.diaries, repository.tags], async() => {
+        const localFileInfoMap = fileTag.localFileInfo;
         const diariesOrigin =
-            await db.diaries
+            await repository.diaries
                 .where('repoId').equals(account.repo!.repoId).toArray();
+        const originTags = await repository.tags.where('userId').equals(account.userId).toArray();
+        const originTagMap: {[key: string]: Tag} = {};
+        originTags.map((tag: Tag) => {
+            originTagMap[tag.tagName] = tag;
+        });
         const diariesOriginMap: {[key: string]: Diary} = {};
         const addLocalFileInfo: Diary[] = [];
         const deleteLocalFileInfo: Diary[] = [];
@@ -95,18 +133,13 @@ export const saveDiariesToDB = async (localFileInfoMap: {[key: string]: LocalFil
                 deleteLocalFileInfo.push(origin);
             }
         });
-        const originTags = await db.tags.toArray();
-        const originTagMap: {[key: string]: Tag} = {};
-        originTags.map(t => {
-            originTagMap[t.tagName] = t;
-        });
         for (const newKey of Object.keys(localFileInfoMap)) {
             const oldItem = diariesOriginMap[newKey];
             if (!oldItem) {
                 const newItem = localFileInfoMap[newKey];
                 const diary = mapToDiary(account, newItem);
                 if (!!newItem.tags) {
-                    newItem.tags.split(',').map(tag => {
+                    newItem.tags.split(',').map((tag: string) => {
                         // only exists tag will link to diary
                         if (originTagMap[tag]) {
                             originTagMap[tag].diaries.push(diary);
@@ -118,18 +151,60 @@ export const saveDiariesToDB = async (localFileInfoMap: {[key: string]: LocalFil
             }
         }
         // delete old diaries
-        const deleteIds = deleteLocalFileInfo.map(item => item.id ? item.id : 0);
+        deleteIds = deleteLocalFileInfo.map(item => item.id ? item.id : 0);
         if (!!deleteIds && deleteIds.length > 0) {
-            await db.diaries
+            await repository.diaries
                 .where('id').anyOf(deleteIds)
                 .delete();
         }
         // add new diaries
         if (!!addLocalFileInfo && addLocalFileInfo.length > 0) {
-            await db.diaries.bulkAdd(addLocalFileInfo);
+            await repository.diaries.bulkAdd(addLocalFileInfo);
         }
         // update old tags
-        originTags.map(x => x.diaryIds = x.diaries.filter(y => y.id).map(y => y.id!));
-        await db.tags.bulkPut(originTags);
+        await repository.tags.bulkPut(originTags);
     });
+    return deleteIds;
+};
+export const mapToDiaryData: ((diary: Diary) => DiaryData) = diary => {
+    return {
+        id: diary.id ? diary.id : 0,
+        repoId: diary.repoId,
+        title: diary.title,
+        storeLocation: diary.storeLocation,
+        createTime: diary.createTime,
+        lastUpdateTime: diary.lastUpdateTime,
+        tags: diary.tags.map(tag => mapToTagData(tag))
+    };
+};
+export const mapToTagData: ((tag: Tag) => TagData) = tag => {
+    return {
+        id: tag.id ? tag.id : 0,
+        userId: tag.userId,
+        tagName: tag.tagName,
+        tagImage: tag.tagImage,
+        parentTagId: tag.parentTagId,
+        childTags: tag.childTags.map((tag2: Tag) => mapToTagData(tag2)),
+    };
+};
+export const mapDataToDiary: ((diary: DiaryData) => Diary) = diary => {
+    return new Diary(
+        diary.repoId,
+        diary.title,
+        diary.storeLocation,
+        diary.createTime,
+        diary.lastUpdateTime,
+        diary.tags.map(tag => tag.id),
+        diary.id
+    );
+};
+export const mapDataToTag: ((tag: TagData) => Tag) = tag => {
+    return new Tag(
+        tag.userId,
+        tag.parentTagId,
+        tag.tagName,
+        tag.tagImage,
+        [],
+        tag.id,
+    );
 };

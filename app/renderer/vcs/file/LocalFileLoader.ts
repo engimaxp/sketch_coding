@@ -39,6 +39,11 @@ const fileTraverseSync = (filePath: string, fileFunction: ((fileName: string, bi
     });
 };
 
+export interface FileTag {
+    tagMap: LocalTagInfo[];
+    localFileInfo: LocalFileInfo[];
+}
+
 export const searchAndBuildIndexReadme = async (repoName: string, pathInfo: string, userId: number) => {
     // read the readme file
     const readmeFilePath: string = path.join(pathInfo, md);
@@ -95,9 +100,12 @@ export const searchAndBuildIndexReadme = async (repoName: string, pathInfo: stri
         const readme: string = generateReadmeMarkDown(repoName, localFileInfo);
         await fs.writeFileSync(readmeFilePath, readme, {encoding: 'utf-8'});
     }
-    if (!!tagFileMap && Object.keys(tagFileMap).length > 0) {
+    if (!!tagMap && Object.keys(tagMap).length > 0) {
         const tagInfo: string = generateTagInfoMarkDown(repoName, tagFileMap, tagMap);
         await fs.writeFileSync(tagInfoFilePath, tagInfo, {encoding: 'utf-8'});
     }
-    return currentFileInfoMap;
+    return {
+        localFileInfo,
+        tagMap
+    };
 };

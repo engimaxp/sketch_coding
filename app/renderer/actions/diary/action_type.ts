@@ -9,3 +9,6 @@ export type UPDATE_DIARY = typeof UPDATE_DIARY;
 
 export const DELETE_DIARY = 'delete_diary';
 export type DELETE_DIARY = typeof DELETE_DIARY;
+
+export const REFRESH_DIARY = 'refresh_diary';
+export type REFRESH_DIARY = typeof REFRESH_DIARY;

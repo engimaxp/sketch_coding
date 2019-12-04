@@ -11,7 +11,7 @@ import PinCode from '../../Control/PinCode';
 import {settings} from '../../../constants';
 import AccountData, {AccountRepo} from '../../../types/Account';
 import Button from '@material-ui/core/Button';
-import {db} from '../../../vcs/local/db';
+import {repository} from '../../../vcs/local/repository';
 import {getAccountById, UserInfo} from '../../../vcs/local/UserInfo';
 import {withError, WithErrorsProps} from '../../Control/SnackBar/ErrorInfoSnackBar';
 import Select from '@material-ui/core/Select';
@@ -138,7 +138,7 @@ class Login extends React.Component<LoginWithStyles, LoginStatus> {
         console.log('Clearing database...');
         // await db.delete();
         // await db.openDrawer();
-        await Promise.all([db.users.clear(), db.repos.clear()]);
+        await Promise.all([repository.users.clear(), repository.repos.clear()]);
         if (this.props.redirectToRegister) {
             this.props.redirectToRegister();
         }

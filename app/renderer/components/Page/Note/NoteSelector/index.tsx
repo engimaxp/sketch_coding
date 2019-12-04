@@ -9,12 +9,13 @@ import Grid from '@material-ui/core/Grid';
 import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
-import CardMedia from '@material-ui/core/CardMedia';
-import Hidden from '@material-ui/core/Hidden';
 import Container from '@material-ui/core/Container';
 
 import { Scrollbars } from 'react-custom-scrollbars';
 import Timeout = NodeJS.Timeout;
+import AccountData from '../../../../types/Account';
+import DiaryData, {TagData} from '../../../../types/Diary';
+import Page from '../../../../vcs/local/Page';
 const useStyles = (theme: Theme) => createStyles({
     '@global': {
         body: {
@@ -61,62 +62,67 @@ interface NoteSelectorProps extends WithStyles<typeof useStyles> {
     changeInEdit: (inEdit: boolean) => void;
     listScrollTop: number;
     scrollTop: (top: number) => void;
+    syncBetweenDBAndFile: (account: AccountData, diaries: DiaryData[]) => Promise<void>;
+    getFromDB: (account: AccountData, pageInfo: Page) => Promise<void>;
+    currentPage: Page;
+    account: AccountData;
+    diaries: DiaryData[];
 }
 
 interface NoteSelectorState {
     listScrollTop: number;
 }
 
-const featuredPosts = [
-    {
-        title: 'Featured post',
-        date: 'Nov 12',
-        description:
-            'This is a wider card with supporting text below as a natural lead-in to additional content.',
-    },
-    {
-        title: 'Post title1',
-        date: 'Nov 11',
-        description:
-            'This is a wider card with supporting text below as a natural lead-in to additional content.',
-    },
-    {
-        title: 'Post title2',
-        date: 'Nov 11',
-        description:
-            'This is a wider card with supporting text below as a natural lead-in to additional content.',
-    },
-    {
-        title: 'Post title3',
-        date: 'Nov 11',
-        description:
-            'This is a wider card with supporting text below as a natural lead-in to additional content.',
-    },
-    {
-        title: 'Post title4',
-        date: 'Nov 11',
-        description:
-            'This is a wider card with supporting text below as a natural lead-in to additional content.',
-    },
-    {
-        title: 'Post title5',
-        date: 'Nov 11',
-        description:
-            'This is a wider card with supporting text below as a natural lead-in to additional content.',
-    },
-    {
-        title: 'Post title6',
-        date: 'Nov 11',
-        description:
-            'This is a wider card with supporting text below as a natural lead-in to additional content.',
-    },
-    {
-        title: 'Post title7',
-        date: 'Nov 11',
-        description:
-            'This is a wider card with supporting text below as a natural lead-in to additional content.',
-    },
-];
+// const featuredPosts = [
+//     {
+//         title: 'Featured post',
+//         date: 'Nov 12',
+//         description:
+//             'This is a wider card with supporting text below as a natural lead-in to additional content.',
+//     },
+//     {
+//         title: 'Post title1',
+//         date: 'Nov 11',
+//         description:
+//             'This is a wider card with supporting text below as a natural lead-in to additional content.',
+//     },
+//     {
+//         title: 'Post title2',
+//         date: 'Nov 11',
+//         description:
+//             'This is a wider card with supporting text below as a natural lead-in to additional content.',
+//     },
+//     {
+//         title: 'Post title3',
+//         date: 'Nov 11',
+//         description:
+//             'This is a wider card with supporting text below as a natural lead-in to additional content.',
+//     },
+//     {
+//         title: 'Post title4',
+//         date: 'Nov 11',
+//         description:
+//             'This is a wider card with supporting text below as a natural lead-in to additional content.',
+//     },
+//     {
+//         title: 'Post title5',
+//         date: 'Nov 11',
+//         description:
+//             'This is a wider card with supporting text below as a natural lead-in to additional content.',
+//     },
+//     {
+//         title: 'Post title6',
+//         date: 'Nov 11',
+//         description:
+//             'This is a wider card with supporting text below as a natural lead-in to additional content.',
+//     },
+//     {
+//         title: 'Post title7',
+//         date: 'Nov 11',
+//         description:
+//             'This is a wider card with supporting text below as a natural lead-in to additional content.',
+//     },
+// ];
 class NoteSelector extends Component<NoteSelectorProps, NoteSelectorState> {
     private readonly scrollRef!: RefObject<Scrollbars>;
     private timeoutFunction: Timeout;
@@ -127,11 +133,18 @@ class NoteSelector extends Component<NoteSelectorProps, NoteSelectorState> {
             listScrollTop: this.props.listScrollTop
         };
     }
-    componentDidMount(): void {
+    async componentDidMount(): Promise<void> {
+        if (!this.props.account || !this.props.account!.repo) {
+            return;
+        }
+        if (!this.props.diaries || this.props.diaries.length === 0) {
+            await this.props.getFromDB(this.props.account, this.props.currentPage);
+        }
         this.scrollRef!.current!.scrollTop(this.props.listScrollTop);
-        this.timeoutFunction = setInterval(() => {
-            console.log('hello');
-        }, 3000);
+        await this.props.syncBetweenDBAndFile(this.props.account, []);
+        this.timeoutFunction = setInterval(async () => {
+            await this.props.syncBetweenDBAndFile(this.props.account, []);
+        }, 60000);
     }
     componentWillUnmount(): void {
         this.props.scrollTop(this.state.listScrollTop);
@@ -142,7 +155,7 @@ class NoteSelector extends Component<NoteSelectorProps, NoteSelectorState> {
         this.props.changeInEdit(true);
     };
     render() {
-      const {classes} = this.props;
+      const {classes, diaries} = this.props;
       return (
           <div style={{height: '100%'}}>
               <Scrollbars onScrollStop={() => {
@@ -159,8 +172,8 @@ class NoteSelector extends Component<NoteSelectorProps, NoteSelectorState> {
                           style={{ width: `calc(100%-${settings.markdownEditor.padding}px)`}}>
                   <Container maxWidth="lg" className={classes.listContainer}>
                       <Grid container spacing={0}>
-                          {featuredPosts.map(post => (
-                              <Grid item key={post.title} xs={12} md={6}>
+                          {diaries.map((diary: DiaryData) => (
+                              <Grid item key={diary.id} xs={12} md={6}>
                                   <CardActionArea component="a" href="#">
                                       <Card className={classes.card}
                                             elevation={0}
@@ -172,20 +185,16 @@ class NoteSelector extends Component<NoteSelectorProps, NoteSelectorState> {
                                                               variant="h5"
                                                               color={'primary'}
                                                   >
-                                                      {post.title}
+                                                      {diary.title}
                                                   </Typography>
                                                   <Typography variant="body2" paragraph>
-                                                      {post.description}
+                                                      {diary.tags.map((y: TagData) => y.tagName).join(',')}
+                                                  </Typography>
+                                                  <Typography variant="body2" paragraph>
+                                                      {diary.createTime.toDateString()}
                                                   </Typography>
                                               </CardContent>
                                           </div>
-                                          <Hidden xsDown>
-                                              <CardMedia
-                                                  className={classes.cardMedia}
-                                                  image="https://source.unsplash.com/random"
-                                                  title="Image title"
-                                              />
-                                          </Hidden>
                                       </Card>
                                   </CardActionArea>
                               </Grid>

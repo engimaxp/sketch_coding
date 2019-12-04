@@ -1,6 +1,6 @@
 import {AccountRepo} from '../../types/Account';
 import {Diary} from './Diary';
-import {db} from './db';
+import {repository} from './repository';
 export class Repo {
     id?: number;
     userId: number;
@@ -31,7 +31,7 @@ export class Repo {
             return;
         }
         [this.diaries] = await Promise.all([
-            db.diaries.where('repoId').equals(this.id).toArray(),
+            repository.diaries.where('repoId').equals(this.id).toArray(),
         ]);
     }
 }
