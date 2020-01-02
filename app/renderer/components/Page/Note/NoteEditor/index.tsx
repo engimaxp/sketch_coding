@@ -13,11 +13,8 @@ import SplitIcon from '@material-ui/icons/VerticalSplitOutlined';
 import SplitActiveIcon from '@material-ui/icons/VerticalSplit';
 import ReturnIcon from '@material-ui/icons/KeyboardReturn';
 import * as moment from 'moment';
-import hljs from 'highlight.js';
 import 'highlight.js/styles/github.css';
 import * as path from 'path';
-import {escapeHtml, replaceEntities, unescapeMd} from 'remarkable/lib/common/utils';
-import Remarkable from 'remarkable';
 import CodeMirrorEditor from '../../../../containers/codeMirrorEditor';
 import SplitPane from 'react-split-pane';
 import './SplitPane.css';
@@ -26,6 +23,7 @@ import NativeImage = Electron.NativeImage;
 const {clipboard} = require('electron');
 import fs from 'fs';
 import {NoteEditorState} from '../../../../types/NoteEditor';
+import {getRemarkable} from '../../../../share/Remarkable';
 const useStyles = (theme: Theme) => createStyles({
     '@global': {
         body: {
@@ -97,7 +95,7 @@ const useStyles = (theme: Theme) => createStyles({
     }
 });
 interface NoteEditorProps extends WithStyles<typeof useStyles> {
-    submit: (input: string, title: string, rootDir: string, repoId: number) => void;
+    submit: (input: string, title: string, rootDir: string, repoId: number, diaryId: number) => void;
     returnToNoteList: () => void;
     changeEditorMode: (inChange: boolean) => void;
     changeSplitMode: () => void;
@@ -137,28 +135,13 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorStats> {
     private readonly md: any;
     constructor(props: Readonly<NoteEditorProps>) {
         super(props);
-        this.md = new Remarkable({
-            highlight: (str: string, lang: string) => {
-                if (lang && hljs.getLanguage(lang)) {
-                    try {
-                        return hljs.highlight(lang, str).value;
-                    } catch (err) {}
-                }
-
-                try {
-                    return hljs.highlightAuto(str).value;
-                } catch (err) {}
-
-                return ''; // use external default escaping
-            }
-        });
+        this.md = getRemarkable(this.props.localDirectory);
         this.state = {
             title: this.props.editorStatus.title,
             content: this.props.editorStatus.content,
             contentHtml: this.props.editorStatus.contentHtml,
             splitPos: this.props.editorStatus.splitPos
         };
-        overrideMarkdownParseToAdaptLink(this.md, this.props.localDirectory);
     }
 
     componentWillUnmount(): void {
@@ -169,10 +152,11 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorStats> {
 
     save = () => {
         this.props.submit(
-            this.props.editorStatus.content,
-            this.props.editorStatus.title,
+            this.state.content,
+            this.state.title,
             this.props.localDirectory,
-            this.props.repoId);
+            this.props.repoId,
+            this.props.editorStatus.editingDiaryId);
     };
     onChange = (value: string) => {
         if (!!value) {
@@ -343,20 +327,5 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorStats> {
         );
     }
 }
-
-const overrideMarkdownParseToAdaptLink = (md: Remarkable, assetDir: string): void => {
-    md.renderer.rules.image = (tokens, idx, options /*, env */) => {
-        const srcUrl = path.resolve(assetDir, settings.imageFileDirectory, path.basename(tokens[idx].src));
-
-        const src = ' src="' + escapeHtml(srcUrl) + '"';
-        const style = ` style="width:100%;padding-right:${settings.markdownEditor.padding}px"`;
-        const title = tokens[idx].title ? (' title="' + escapeHtml(replaceEntities(tokens[idx].title)) + '"') : '';
-        const alt = ' alt="' + (tokens[idx].alt ? escapeHtml(replaceEntities(unescapeMd(tokens[idx].alt))) : '') + '"';
-        const suffix = options!.xhtmlOut ? ' /' : '';
-
-        // noinspection HtmlRequiredAltAttribute
-        return '<img' + src + style + alt + title + suffix + '>';
-    };
-};
 
 export default withStyles(useStyles)(NoteEditor);

@@ -57,7 +57,6 @@ export const addDiary = async (diary: DiaryData): Promise<Add> => {
     await mapDataToTag(x).save();
   }
   let storeDiary = mapDataToDiary(diary);
-  console.log(JSON.stringify(storeDiary));
   storeDiary = await saveDiary(storeDiary);
   let tagsUpdated: Tag[] = [];
   if (diary.tags !== undefined && diary.tags.length > 0) {
@@ -72,7 +71,17 @@ export const addDiary = async (diary: DiaryData): Promise<Add> => {
 
 interface Update {
   type: UPDATE_DIARY;
+  updatedDiaryId: number;
+  updatedDiaryTitle: string;
 }
+
+export const updateDiary: (diary: DiaryData) => Update = (diary: DiaryData) => {
+  return {
+    type: UPDATE_DIARY,
+    updatedDiaryId: diary.id,
+    updatedDiaryTitle: diary.title,
+  };
+};
 
 interface Delete {
   type: DELETE_DIARY;
@@ -101,11 +110,9 @@ export const refreshDiaries = async (account: AccountData, diaries: DiaryData[])
   } catch (e) {
     console.log(e);
   }
-  console.log(filesRefreshed);
   if (!!filesRefreshed) {
     // refresh to indexed db
     const deletedIds = await saveDiariesAndTagsToDB(filesRefreshed, account);
-    console.log(deletedIds);
     //  then if modified, dispatch to the session store
     if (!!diaries && diaries.length > 0 && !!deletedIds && deletedIds.length > 0) {
       const temp: DiaryData[] = [];

@@ -8,6 +8,10 @@ export type CHANGE_EDIT = typeof CHANGE_EDIT;
 export const SCROLL_CHANGE = 'scrollChange';
 export type SCROLL_CHANGE = typeof SCROLL_CHANGE;
 
+// enter edit mode
+export const EDIT_ENTER = 'editEnter';
+export type EDIT_ENTER = typeof EDIT_ENTER;
+
 /* -- note editor -- */
 
 // in editor mode ,user can switch between preview view and editor view

@@ -111,7 +111,6 @@ export default class CodeMirrorEditor extends Component<CodeMirrorEditorProps, C
         };
     }
     componentWillUnmount(): void {
-        console.log(`unmount ${this.state.cursorPosition}, ${this.state.scrollPosition}`);
         this.props.changeCursor(this.state.cursorPosition);
         this.props.changeScrollPosition(this.state.scrollPosition);
     }

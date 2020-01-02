@@ -153,7 +153,6 @@ class Login extends React.Component<LoginWithStyles, LoginStatus> {
 
     handleChange = async (event: React.ChangeEvent<{ value: unknown }>) => {
         const value = event.target.value as string;
-        console.log(value);
         const userInfo = await getAccountById(value);
         if (userInfo) {
             this.setState({
@@ -215,7 +214,6 @@ class Login extends React.Component<LoginWithStyles, LoginStatus> {
                         (<PinCode pinSize={settings.pinSize}
                                                             reset={reset}
                                                             submit={(code: string) => {
-                                                                console.log(code);
                                                                 if (code === pinCodeValid) {
                                                                     this.successRedirect(selectedUser);
                                                                 } else {

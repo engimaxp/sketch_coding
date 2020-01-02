@@ -7,7 +7,7 @@ import mkdirp from 'mkdirp';
 import fs from 'fs';
 import * as path from 'path';
 import * as moment from 'moment';
-import {addDiary} from '../actions/diary';
+import {addDiary, updateDiary} from '../actions/diary';
 import {
     changeContent,
     changeEdit,
@@ -17,6 +17,7 @@ import {
     editorChangeSplit,
     editorChangeSplitPos
 } from '../actions/note';
+import {getDiary, updateDiaryToDB} from '../vcs/local/Diary';
 
 const mapStateToProps = (state: StoreState) => ({
     editorStatus: state.noteEditor.editorStatus,
@@ -45,7 +46,7 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
     changeTitle: (title: string) => {
         dispatch(changeTitle(title));
     },
-    submit: async (input: string, title: string, rootDir: string, repoId: number) => {
+    submit: async (input: string, title: string, rootDir: string, repoId: number, diaryId: number) => {
         const secondaryDir = `${moment().format('YYYY')}\\${moment().format('MM')}`;
         if (!!input && !!title) {
             if (!fs.existsSync(path.join(rootDir, secondaryDir))) {
@@ -58,16 +59,39 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
                 currentFileName = `${title}_${count}.md`;
                 count++;
             }
-            fs.writeFileSync(path.join(rootDir, secondaryDir, currentFileName), input, {encoding: 'UTF-8'});
-            dispatch(await addDiary({
-                id: 0,
-                repoId,
-                title: `${title}.md`,
-                storeLocation: secondaryDir,
-                createTime: new Date(),
-                lastUpdateTime: new Date(),
-                tags: [],
-            }));
+            if (diaryId > 0) {
+                // find exact diary item in db use diaryId
+                const diaryData = await getDiary(diaryId);
+                if (!!diaryData) {
+                    // if find one ,update it's title and content
+                    const existDiaryDataDirectory = diaryData.storeLocation
+                        + `\\${diaryData.createTime.getUTCFullYear()}`
+                        + `\\${(diaryData.createTime.getMonth() + 1).toString().padStart(2, '0')}`;
+                    if (fs.existsSync(path.join(existDiaryDataDirectory + `\\${diaryData.title}.md`))) {
+                        // rename the file
+                        fs.renameSync(existDiaryDataDirectory + `\\${diaryData.title}.md`,
+                            existDiaryDataDirectory + `\\${currentFileName}`);
+                        diaryData.title = currentFileName.substring(0, currentFileName.length - 3);
+                        // and update to db
+                        await updateDiaryToDB(diaryData);
+                        dispatch(updateDiary(diaryData));
+                        fs.writeFileSync(existDiaryDataDirectory + `\\${currentFileName}`, input, {encoding: 'UTF-8'});
+                    }
+                }
+                // and rewrite its content instead of create a new one
+            } else {
+                // insert a new diary
+                dispatch(await addDiary({
+                    id: 0,
+                    repoId,
+                    title: `${title}.md`,
+                    storeLocation: secondaryDir,
+                    createTime: new Date(),
+                    lastUpdateTime: new Date(),
+                    tags: [],
+                }));
+                fs.writeFileSync(path.join(rootDir, secondaryDir, currentFileName), input, {encoding: 'UTF-8'});
+            }
         }
         dispatch(clearAll());
     }

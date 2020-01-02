@@ -11,6 +11,7 @@ import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
 import Container from '@material-ui/core/Container';
 
+import ButtonBase from '@material-ui/core/ButtonBase';
 import { Scrollbars } from 'react-custom-scrollbars';
 import Timeout = NodeJS.Timeout;
 import AccountData from '../../../../types/Account';
@@ -67,6 +68,7 @@ interface NoteSelectorProps extends WithStyles<typeof useStyles> {
     currentPage: Page;
     account: AccountData;
     diaries: DiaryData[];
+    openSelected: (diary: DiaryData, account: AccountData) => Promise<void>;
 }
 
 interface NoteSelectorState {
@@ -142,6 +144,7 @@ class NoteSelector extends Component<NoteSelectorProps, NoteSelectorState> {
         }
         this.scrollRef!.current!.scrollTop(this.props.listScrollTop);
         await this.props.syncBetweenDBAndFile(this.props.account, []);
+        await this.props.syncBetweenDBAndFile(this.props.account, []);
         this.timeoutFunction = setInterval(async () => {
             await this.props.syncBetweenDBAndFile(this.props.account, []);
         }, 60000);
@@ -155,7 +158,7 @@ class NoteSelector extends Component<NoteSelectorProps, NoteSelectorState> {
         this.props.changeInEdit(true);
     };
     render() {
-      const {classes, diaries} = this.props;
+      const {classes, diaries, openSelected, account} = this.props;
       return (
           <div style={{height: '100%'}}>
               <Scrollbars onScrollStop={() => {
@@ -174,27 +177,29 @@ class NoteSelector extends Component<NoteSelectorProps, NoteSelectorState> {
                       <Grid container spacing={0}>
                           {diaries.map((diary: DiaryData) => (
                               <Grid item key={diary.id} xs={12} md={6}>
-                                  <CardActionArea component="a" href="#">
+                                  <CardActionArea component="a">
                                       <Card className={classes.card}
                                             elevation={0}
                                             square={false}
                                       >
-                                          <div className={classes.cardDetails}>
-                                              <CardContent className={classes.cardContent}>
-                                                  <Typography component="div"
-                                                              variant="h5"
-                                                              color={'primary'}
-                                                  >
-                                                      {diary.title}
-                                                  </Typography>
-                                                  <Typography variant="body2" paragraph>
-                                                      {diary.tags.map((y: TagData) => y.tagName).join(',')}
-                                                  </Typography>
-                                                  <Typography variant="body2" paragraph>
-                                                      {diary.createTime.toDateString()}
-                                                  </Typography>
-                                              </CardContent>
-                                          </div>
+                                          <ButtonBase onClick={event => openSelected(diary, account)}>
+                                              <div className={classes.cardDetails}>
+                                                  <CardContent className={classes.cardContent}>
+                                                      <Typography component="div"
+                                                                  variant="h5"
+                                                                  color={'primary'}
+                                                      >
+                                                          {diary.title}
+                                                      </Typography>
+                                                      <Typography variant="body2" paragraph>
+                                                          {diary.tags.map((y: TagData) => y.tagName).join(',')}
+                                                      </Typography>
+                                                      <Typography variant="body2" paragraph>
+                                                          {diary.createTime.toDateString()}
+                                                      </Typography>
+                                                  </CardContent>
+                                              </div>
+                                          </ButtonBase>
                                       </Card>
                                   </CardActionArea>
                               </Grid>

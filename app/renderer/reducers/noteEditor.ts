@@ -3,7 +3,7 @@ import {noteActions} from '../actions/note';
 import {
   CHANGE_CONTENT,
   CHANGE_EDIT,
-  CHANGE_TITLE, CLEAR_ALL, CODE_MIRROR_CHANGE_CURSOR, CODE_MIRROR_CHANGE_SCROLL,
+  CHANGE_TITLE, CLEAR_ALL, CODE_MIRROR_CHANGE_CURSOR, CODE_MIRROR_CHANGE_SCROLL, EDIT_ENTER,
   EDITOR_CHANGE_EDIT,
   EDITOR_CHANGE_SPLIT, SCROLL_CHANGE
 } from '../actions/note/action_type';
@@ -15,6 +15,7 @@ export const INITIAL_STATE: NoteEditorStatus = {
   page: new Page(1, settings.diaryPageDefaultSize),
   editorStatus: {
     inEdit: true,
+    editingDiaryId: 0,
     isSplit: false,
     splitPos: settings.markdownEditor.splitView.defaultWidth,
     title: `Sketch_${moment().format('YYMMDD_HHmm')}`,
@@ -73,6 +74,14 @@ export default function noteEditor(state: NoteEditorStatus = INITIAL_STATE, acti
     return Object.assign({}, state ,  {editorStatus: newNoteEditorState});
   }  else if (action.type === CLEAR_ALL) {
     return Object.assign({}, INITIAL_STATE);
+  } else if (action.type === EDIT_ENTER) {
+    const newNoteEditorState: NoteEditorState = Object.assign({}, INITIAL_STATE.editorStatus ,  {
+      content: action.content,
+      contentHtml: action.contentHtml,
+      title: action.title,
+      editingDiaryId: action.editingId
+    });
+    return Object.assign({}, state ,  {editorStatus: newNoteEditorState, inEdit: true});
   } else {
     return state;
   }

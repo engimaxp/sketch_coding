@@ -3,11 +3,12 @@ import { connect } from 'react-redux';
 import { StoreState} from '../types';
 import NoteSelector from '../components/Page/Note/NoteSelector';
 import {ThunkDispatch} from 'redux-thunk';
-import {changeEdit, scrollChange} from '../actions/note';
+import {changeEdit, editEnter, scrollChange} from '../actions/note';
 import AccountData from '../types/Account';
 import DiaryData from '../types/Diary';
 import Page from '../vcs/local/Page';
 import {query, refreshDiaries} from '../actions/diary';
+import fs from 'fs';
 
 const mapStateToProps = (state: StoreState) => ({
     inEdit: state.noteEditor.inEdit ?
@@ -31,7 +32,16 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
     },
     syncBetweenDBAndFile: async (account: AccountData, diaries: DiaryData[]) => {
         dispatch(await refreshDiaries(account, diaries));
-        console.log(account, diaries);
+    },
+    openSelected: async (diary: DiaryData, account: AccountData) => {
+        const fileLocaltion = `${account.repo!.localDirectory}`
+            + `\\${diary.createTime.getUTCFullYear()}`
+            + `\\${(diary.createTime.getMonth() + 1).toString().padStart(2, '0')}`
+            + `\\${diary.title}.md`;
+        if (await fs.existsSync(fileLocaltion)) {
+            const content = await fs.readFileSync(fileLocaltion, {encoding: 'utf-8', flag: 'r'});
+            dispatch(editEnter(diary.title, content, account.repo!.localDirectory, diary.id));
+        }
     }
 });
 

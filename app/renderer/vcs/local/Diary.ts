@@ -57,13 +57,32 @@ export const saveDiary = (diary: Diary) => repository.transaction('rw',
     return diary;
 });
 
+export const getDiary = (diaryId: number) => repository.transaction('rw',
+    repository.diaries,
+    async () => {
+    const diary = await repository.diaries.get(diaryId);
+    if (!!diary) {
+        return mapToDiaryData(diary);
+    }
+    return null;
+});
+
+export const updateDiaryToDB = (diaryData: DiaryData) => repository.transaction('rw',
+    repository.diaries,
+    async () => {
+    const diary = await repository.diaries.get(diaryData.id);
+    if (!!diary) {
+        diary.title = diaryData.title;
+        await repository.diaries.put(diary);
+    }
+});
+
 export const getDiariesByPage = async (page: Page, repoId: number) => {
     return await repository.transaction('r', [repository.diaries, repository.tags], async() => {
         const thisPageDiaries: any = await repository.diaries
             .where('repoId').equals(repoId)
             .offset((page.index - 1) * page.size)
             .limit(page.size).toArray();
-        console.log(thisPageDiaries);
         await Promise.all (thisPageDiaries.map((diary: Diary) => loadNavigationProperties(diary)));
         return thisPageDiaries;
     });
@@ -104,6 +123,13 @@ const clearTagDB = async (account: AccountData) => {
     });
 };
 
+const findLocalFileInfoById = (localFileInfoMap: LocalFileInfo[], key: string) => {
+    if (!localFileInfoMap || localFileInfoMap.length === 0) {
+        return undefined;
+    }
+    return localFileInfoMap.find(x => x.id === key);
+};
+
 export const saveDiariesAndTagsToDB = async (fileTag: FileTag, account: AccountData) => {
     let deleteIds: number[] = [];
     await clearTagDB(account);
@@ -111,7 +137,7 @@ export const saveDiariesAndTagsToDB = async (fileTag: FileTag, account: AccountD
     await refreshSaveTagToDB(0, fileTag.tagMap, account);
     // then save diary
     await repository.transaction('rw', [repository.diaries, repository.tags], async() => {
-        const localFileInfoMap = fileTag.localFileInfo;
+        const localFileInfoArray = fileTag.localFileInfo;
         const diariesOrigin =
             await repository.diaries
                 .where('repoId').equals(account.repo!.repoId).toArray();
@@ -125,18 +151,17 @@ export const saveDiariesAndTagsToDB = async (fileTag: FileTag, account: AccountD
         const deleteLocalFileInfo: Diary[] = [];
         diariesOrigin.map(origin => {
             const key = `${origin.createTime.getUTCFullYear()}`
-                + `${(origin.createTime.getMonth() - 1).toString().padStart(2, '0')}`
+                + `${(origin.createTime.getMonth() + 1).toString().padStart(2, '0')}`
                 + `${origin.title}.md`;
             diariesOriginMap[key] = origin;
-            const fileInfoNew = localFileInfoMap[key];
+            const fileInfoNew = findLocalFileInfoById(localFileInfoArray, key);
             if (!fileInfoNew) {
                 deleteLocalFileInfo.push(origin);
             }
         });
-        for (const newKey of Object.keys(localFileInfoMap)) {
-            const oldItem = diariesOriginMap[newKey];
+        for (const newItem of localFileInfoArray) {
+            const oldItem = diariesOriginMap[newItem.id];
             if (!oldItem) {
-                const newItem = localFileInfoMap[newKey];
                 const diary = mapToDiary(account, newItem);
                 if (!!newItem.tags) {
                     newItem.tags.split(',').map((tag: string) => {
@@ -174,7 +199,7 @@ export const mapToDiaryData: ((diary: Diary) => DiaryData) = diary => {
         storeLocation: diary.storeLocation,
         createTime: diary.createTime,
         lastUpdateTime: diary.lastUpdateTime,
-        tags: diary.tags.map(tag => mapToTagData(tag))
+        tags: (!!diary.tags) ? (diary.tags.map(tag => mapToTagData(tag))) : []
     };
 };
 export const mapToTagData: ((tag: Tag) => TagData) = tag => {

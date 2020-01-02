@@ -35,7 +35,6 @@ export default class VcsRepoForm extends React.Component<RepoFormProperty, RepoF
     }
 
     handleChange = (value: string) => {
-        console.log(value);
         this.setState({repoTarget: value, localPath: getDefaultLocalPath(this.props.nickName, value)});
         this.props.change(value, null);
     };

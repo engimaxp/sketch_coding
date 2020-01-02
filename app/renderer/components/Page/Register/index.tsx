@@ -134,7 +134,6 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
             case 2:
                 return <VcsPinSetForm
                     completeSet={(pinCode: string) => this.setState({pinCode}, () => {
-                        console.log(this.state);
                         this.handleNext();
                     })}
                 />;
@@ -148,7 +147,6 @@ class Register extends React.Component<RegisterWithStyles, RegisterFormState> {
             this.error('loginName or Password not added');
             return;
         }
-        console.log(`${loginName},${loginPassword}`);
         this.setState({loading: true});
         let githubUserResult: any;
         try {

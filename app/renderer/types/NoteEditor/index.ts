@@ -9,6 +9,7 @@ export default interface NoteEditorStatus {
 
 export interface NoteEditorState {
     inEdit: boolean; // is in preview mode
+    editingDiaryId: number;
     isSplit: boolean;
     splitPos: number;
     title: string;
