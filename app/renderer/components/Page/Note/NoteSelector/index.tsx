@@ -10,13 +10,12 @@ import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
 import Container from '@material-ui/core/Container';
-
-import ButtonBase from '@material-ui/core/ButtonBase';
 import { Scrollbars } from 'react-custom-scrollbars';
 import Timeout = NodeJS.Timeout;
 import AccountData from '../../../../types/Account';
 import DiaryData, {TagData} from '../../../../types/Diary';
 import Page from '../../../../vcs/local/Page';
+import moment from 'moment';
 const useStyles = (theme: Theme) => createStyles({
     '@global': {
         body: {
@@ -38,13 +37,13 @@ const useStyles = (theme: Theme) => createStyles({
         bottom: 20
     },
     card: {
-        display: 'flex',
+        display: 'flex'
     },
     cardDetails: {
         flex: 1,
     },
     cardContent: {
-        padding: theme.spacing(1, 1, 1, 1)
+        padding: theme.spacing(2, 2, 2, 2)
     },
     cardMedia: {
         width: 160,
@@ -75,56 +74,6 @@ interface NoteSelectorState {
     listScrollTop: number;
 }
 
-// const featuredPosts = [
-//     {
-//         title: 'Featured post',
-//         date: 'Nov 12',
-//         description:
-//             'This is a wider card with supporting text below as a natural lead-in to additional content.',
-//     },
-//     {
-//         title: 'Post title1',
-//         date: 'Nov 11',
-//         description:
-//             'This is a wider card with supporting text below as a natural lead-in to additional content.',
-//     },
-//     {
-//         title: 'Post title2',
-//         date: 'Nov 11',
-//         description:
-//             'This is a wider card with supporting text below as a natural lead-in to additional content.',
-//     },
-//     {
-//         title: 'Post title3',
-//         date: 'Nov 11',
-//         description:
-//             'This is a wider card with supporting text below as a natural lead-in to additional content.',
-//     },
-//     {
-//         title: 'Post title4',
-//         date: 'Nov 11',
-//         description:
-//             'This is a wider card with supporting text below as a natural lead-in to additional content.',
-//     },
-//     {
-//         title: 'Post title5',
-//         date: 'Nov 11',
-//         description:
-//             'This is a wider card with supporting text below as a natural lead-in to additional content.',
-//     },
-//     {
-//         title: 'Post title6',
-//         date: 'Nov 11',
-//         description:
-//             'This is a wider card with supporting text below as a natural lead-in to additional content.',
-//     },
-//     {
-//         title: 'Post title7',
-//         date: 'Nov 11',
-//         description:
-//             'This is a wider card with supporting text below as a natural lead-in to additional content.',
-//     },
-// ];
 class NoteSelector extends Component<NoteSelectorProps, NoteSelectorState> {
     private readonly scrollRef!: RefObject<Scrollbars>;
     private timeoutFunction: Timeout;
@@ -143,7 +92,6 @@ class NoteSelector extends Component<NoteSelectorProps, NoteSelectorState> {
             await this.props.getFromDB(this.props.account, this.props.currentPage);
         }
         this.scrollRef!.current!.scrollTop(this.props.listScrollTop);
-        await this.props.syncBetweenDBAndFile(this.props.account, []);
         await this.props.syncBetweenDBAndFile(this.props.account, []);
         this.timeoutFunction = setInterval(async () => {
             await this.props.syncBetweenDBAndFile(this.props.account, []);
@@ -177,29 +125,26 @@ class NoteSelector extends Component<NoteSelectorProps, NoteSelectorState> {
                       <Grid container spacing={0}>
                           {diaries.map((diary: DiaryData) => (
                               <Grid item key={diary.id} xs={12} md={6}>
-                                  <CardActionArea component="a">
+                                  <CardActionArea component="a" onClick={() => openSelected(diary, account)}>
                                       <Card className={classes.card}
                                             elevation={0}
                                             square={false}
                                       >
-                                          <ButtonBase onClick={event => openSelected(diary, account)}>
-                                              <div className={classes.cardDetails}>
-                                                  <CardContent className={classes.cardContent}>
-                                                      <Typography component="div"
-                                                                  variant="h5"
-                                                                  color={'primary'}
-                                                      >
-                                                          {diary.title}
-                                                      </Typography>
-                                                      <Typography variant="body2" paragraph>
-                                                          {diary.tags.map((y: TagData) => y.tagName).join(',')}
-                                                      </Typography>
-                                                      <Typography variant="body2" paragraph>
-                                                          {diary.createTime.toDateString()}
-                                                      </Typography>
-                                                  </CardContent>
-                                              </div>
-                                          </ButtonBase>
+                                          <div className={classes.cardDetails}>
+                                              <CardContent className={classes.cardContent}>
+                                                  <Typography component="div"
+                                                              variant="h5"
+                                                  >
+                                                      {diary.title}
+                                                  </Typography>
+                                                  <Typography variant="body2">
+                                                      {diary.tags.map((y: TagData) => y.tagName).join(',')}
+                                                  </Typography>
+                                                  <Typography variant="body2" display={'inline'}>
+                                                      {moment(diary.createTime).format('MMMM Do YYYY, h:mm:ss a')}
+                                                  </Typography>
+                                              </CardContent>
+                                          </div>
                                       </Card>
                                   </CardActionArea>
                               </Grid>

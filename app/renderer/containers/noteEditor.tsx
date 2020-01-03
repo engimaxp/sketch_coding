@@ -32,6 +32,7 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
         dispatch(editorChangeEdit(inChange));
     },
     returnToNoteList: () => {
+        dispatch(clearAll());
         dispatch(changeEdit(false));
     },
     changeSplitMode: () => {

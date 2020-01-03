@@ -145,12 +145,21 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorStats> {
     }
 
     componentWillUnmount(): void {
+    }
+
+    dispose = () => {
         this.props.changeTitle(this.state.title);
         this.props.changeContent(this.state.content, this.state.contentHtml);
         this.props.changeSplitPos(this.state.splitPos);
-    }
+    };
+
+    returnPage = () => {
+        this.dispose();
+        this.props.returnToNoteList();
+    };
 
     save = () => {
+        this.dispose();
         this.props.submit(
             this.state.content,
             this.state.title,
@@ -193,7 +202,7 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorStats> {
         return '';
     };
     render() {
-        const {classes, changeEditorMode, returnToNoteList, editorStatus} = this.props;
+        const {classes, changeEditorMode, editorStatus} = this.props;
         const {isSplit, inEdit} = editorStatus;
         const {content, contentHtml, title, splitPos} = this.state;
         const oneScreenEditDisplay = !isSplit && inEdit;
@@ -227,7 +236,7 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorStats> {
                             >
                                 <Button
                                     color="primary"
-                                    onClick={() => returnToNoteList()}
+                                    onClick={this.returnPage}
                                 ><ReturnIcon/></Button>
                                 <Button
                                     color="primary"
@@ -309,7 +318,7 @@ class NoteEditor extends Component<NoteEditorProps, NoteEditorStats> {
                             >
                                 <Button
                                     color="primary"
-                                    onClick={() => returnToNoteList()}
+                                    onClick={this.returnPage}
                                 ><ReturnIcon/></Button>
                                 <Button
                                     color="primary"
