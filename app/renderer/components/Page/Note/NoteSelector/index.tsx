@@ -8,6 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
+import AccessTimeIcon from '@material-ui/icons/AccessTime';
 import CardContent from '@material-ui/core/CardContent';
 import Container from '@material-ui/core/Container';
 import { Scrollbars } from 'react-custom-scrollbars';
@@ -55,6 +56,20 @@ const useStyles = (theme: Theme) => createStyles({
     },
     listContainer: {
         padding: theme.spacing(0, 0, 0, 0)
+    },
+    accessTimeIcon: {
+        marginRight: theme.spacing(0.5),
+        fontSize: theme.spacing(2),
+        color: theme.palette.grey.A700
+    },
+    timeText: {
+        fontSize: 'small',
+        color: theme.palette.grey.A700
+    },
+    timeTagRow: {
+        display: 'flex',
+        alignItems: 'end',
+        marginTop: theme.spacing(0.5),
     }
 });
 interface NoteSelectorProps extends WithStyles<typeof useStyles> {
@@ -137,11 +152,19 @@ class NoteSelector extends Component<NoteSelectorProps, NoteSelectorState> {
                                                   >
                                                       {diary.title}
                                                   </Typography>
-                                                  <Typography variant="body2">
-                                                      {diary.tags.map((y: TagData) => y.tagName).join(',')}
-                                                  </Typography>
-                                                  <Typography variant="body2" display={'inline'}>
-                                                      {moment(diary.createTime).format('MMMM Do YYYY, h:mm:ss a')}
+                                                  <Typography  variant="body2" className={classes.timeTagRow}>
+                                                      <AccessTimeIcon
+                                                          display={'inline'}
+                                                          className={classes.accessTimeIcon}
+                                                      />
+                                                      <Typography component={'span'}
+                                                                  className={classes.timeText}
+                                                      >
+                                                          {moment(diary.createTime).format('YYYY/MM/DD, h:mm:ss a')}
+                                                      </Typography>
+                                                      <Typography component={'span'}>
+                                                          {diary.tags.map((y: TagData) => y.tagName).join(',')}
+                                                      </Typography>
                                                   </Typography>
                                               </CardContent>
                                           </div>
