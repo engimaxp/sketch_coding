@@ -19,6 +19,7 @@ export interface AccountState {
 export interface DiaryState {
   tags: TagData[];
   diaries: DiaryData[];
+  diaryCountTotal: number;
 }
 
 export interface StoreState {

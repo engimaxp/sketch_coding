@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { StoreState} from '../types';
 import NoteSelector from '../components/Page/Note/NoteSelector';
 import {ThunkDispatch} from 'redux-thunk';
-import {changeEdit, editEnter, scrollChange} from '../actions/note';
+import {changeEdit, changePage, editEnter, scrollChange} from '../actions/note';
 import AccountData from '../types/Account';
 import DiaryData from '../types/Diary';
 import Page from '../vcs/local/Page';
@@ -17,7 +17,8 @@ const mapStateToProps = (state: StoreState) => ({
         state.noteEditor!.listScrollTop : 0,
     currentPage: state.noteEditor.page,
     account: state.account.data,
-    diaries: state.diary.diaries
+    diaries: state.diary.diaries,
+    diaryCountTotal: state.diary.diaryCountTotal
 });
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
@@ -42,6 +43,10 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
             const content = await fs.readFileSync(fileLocaltion, {encoding: 'utf-8', flag: 'r'});
             dispatch(editEnter(diary.title, content, account.repo!.localDirectory, diary.id));
         }
+    },
+    changePage: async (account: AccountData, pageIndex: number, pageSize: number) => {
+        dispatch(changePage(pageIndex, pageSize));
+        dispatch(await query(account!.userId, account!.repo!.repoId, new Page(pageIndex, pageSize)));
     }
 });
 

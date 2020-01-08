@@ -10,6 +10,7 @@ import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
 import AccessTimeIcon from '@material-ui/icons/AccessTime';
 import CardContent from '@material-ui/core/CardContent';
+import TablePagination from '@material-ui/core/TablePagination';
 import Container from '@material-ui/core/Container';
 import { Scrollbars } from 'react-custom-scrollbars';
 import Timeout = NodeJS.Timeout;
@@ -34,8 +35,8 @@ const useStyles = (theme: Theme) => createStyles({
     },
     add: {
         position: 'absolute',
-        right: 20,
-        bottom: 20
+        right: theme.spacing(2.5),
+        bottom: theme.spacing(7.5)
     },
     card: {
         display: 'flex'
@@ -52,7 +53,7 @@ const useStyles = (theme: Theme) => createStyles({
     preview: {
         width: '100%',
         flex: 1,
-        height: `calc(100% - ${settings.indexPage.titleHeight}px)`
+        height: `calc(100% - ${settings.indexPage.titleHeight + 8}px)`
     },
     listContainer: {
         padding: theme.spacing(0, 0, 0, 0)
@@ -81,8 +82,10 @@ interface NoteSelectorProps extends WithStyles<typeof useStyles> {
     getFromDB: (account: AccountData, pageInfo: Page) => Promise<void>;
     currentPage: Page;
     account: AccountData;
+    diaryCountTotal: number;
     diaries: DiaryData[];
     openSelected: (diary: DiaryData, account: AccountData) => Promise<void>;
+    changePage: (account: AccountData, pageIndex: number, pageSize: number) => Promise<void>;
 }
 
 interface NoteSelectorState {
@@ -121,25 +124,30 @@ class NoteSelector extends Component<NoteSelectorProps, NoteSelectorState> {
         this.props.changeInEdit(true);
     };
     render() {
-      const {classes, diaries, openSelected, account} = this.props;
+      const {classes, diaries, openSelected, account,
+          currentPage, changePage, diaryCountTotal} = this.props;
       return (
           <div style={{height: '100%'}}>
-              <Scrollbars onScrollStop={() => {
+              <Scrollbars
+                  onScrollStop={() => {
                   this.setState({listScrollTop: this.scrollRef!.current!.getScrollTop()});
               }}
-                          ref={this.scrollRef} className={classes.preview}
-                          renderView={(props2: any) => (
-                              <div {...props2} style={{ ...props2.style, overflowX: 'hidden' }} />
-                          )}
-                          renderTrackHorizontal=
-                              {(props2: any) => <div {...props2}
-                                                     style={{display: 'none'}}
-                                                     className="track-horizontal"/>}
-                          style={{ width: `calc(100%-${settings.markdownEditor.padding}px)`}}>
+                  ref={this.scrollRef} className={classes.preview}
+                  renderView={(props2: any) => (
+                      <div {...props2} style={{ ...props2.style, overflowX: 'hidden' }} />
+                  )}
+                  renderTrackHorizontal=
+                      {(props2: any) => <div {...props2}
+                                             style={{display: 'none'}}
+                                             className="track-horizontal"/>}
+                  style={{
+                      height: `calc(100%-${settings.indexPage.titleHeight + 8}px)`,
+                      width: `calc(100%-${settings.markdownEditor.padding}px)`
+                  }}>
                   <Container maxWidth="lg" className={classes.listContainer}>
                       <Grid container spacing={0}>
                           {diaries.map((diary: DiaryData) => (
-                              <Grid item key={diary.id} xs={12} md={6}>
+                              <Grid item key={diary.id} xs={12} md={12}>
                                   <CardActionArea component="a" onClick={() => openSelected(diary, account)}>
                                       <Card className={classes.card}
                                             elevation={0}
@@ -175,6 +183,19 @@ class NoteSelector extends Component<NoteSelectorProps, NoteSelectorState> {
                       </Grid>
                   </Container>
               </Scrollbars>
+              <TablePagination
+                  component="nav"
+                  page={currentPage.index - 1}
+                  rowsPerPage={currentPage.size}
+                  rowsPerPageOptions={[10, 20, 50, 100]}
+                  count={diaryCountTotal}
+                  onChangePage={(event: any, page: number) => {
+                      changePage(account, page + 1, currentPage.size);
+                  }}
+                  onChangeRowsPerPage={(event: any) => {
+                      changePage(account, currentPage.index, event!.target!.value);
+                  }}
+              />
               <IconButton
                   className={`${classes.avatar} ${classes.add}`}
                   onClick={this.createNewNote}

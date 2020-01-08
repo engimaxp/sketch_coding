@@ -5,7 +5,8 @@ import {
   CLEAR_ALL, CODE_MIRROR_CHANGE_CURSOR, CODE_MIRROR_CHANGE_SCROLL,
   EDITOR_CHANGE_EDIT,
   EDITOR_CHANGE_SPLIT, EDITOR_CHANGE_SPLIT_POS, SCROLL_CHANGE,
-    EDIT_ENTER
+  EDIT_ENTER,
+  CHANGE_PAGE
 } from './action_type';
 import {CodeMirrorPosition} from '../../types/NoteEditor';
 import {getRemarkable} from '../../share/Remarkable';
@@ -20,7 +21,8 @@ export type noteActions = ChangeEdit |
     CodeMirrorChangeCursor|
     CodeMirrorChangeScroll|
     EditorChangeSplitPos|
-    EditEnter;
+    EditEnter|
+    ChangePage;
 
 interface ChangeEdit {
   type: CHANGE_EDIT;
@@ -118,6 +120,18 @@ interface CodeMirrorChangeScroll {
 export const codeMirrorChangeScroll = (codeTop: number): CodeMirrorChangeScroll => ({
   type: CODE_MIRROR_CHANGE_SCROLL,
   codeTop
+});
+
+interface ChangePage {
+  type: CHANGE_PAGE;
+  pageIndex: number;
+  pageSize: number;
+}
+
+export const changePage = (pageIndex: number, pageSize: number): ChangePage => ({
+  type: CHANGE_PAGE,
+  pageIndex,
+  pageSize
 });
 
 interface EditEnter {

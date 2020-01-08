@@ -6,7 +6,7 @@ import {
 } from './action_type';
 import DiaryData, {TagData} from '../../types/Diary';
 import {
-  Diary,
+  Diary, getAllDiariesCount,
   getDiariesByPage,
   mapDataToDiary,
   mapDataToTag, mapToDiaryData, mapToTagData,
@@ -24,6 +24,7 @@ interface Query {
   type: INITIAL_DIARY_LIST;
   diaries?: DiaryData[];
   tags?: TagData[];
+  diaryCountTotal: number;
 }
 
 export const query = async (userId: number, repoId: number, pageInfo: Page): Promise<Query> => {
@@ -31,17 +32,20 @@ export const query = async (userId: number, repoId: number, pageInfo: Page): Pro
     return ({
       type: INITIAL_DIARY_LIST,
       diaries: undefined,
-      tags: undefined
+      tags: undefined,
+      diaryCountTotal: 0
     });
   }
   const diaries: Diary[] = await getDiariesByPage(pageInfo, repoId);
   const diaryDataList: DiaryData[] = diaries.map(diary => mapToDiaryData(diary));
   const tags: Tag[] = await getAllTags(userId);
   const tagDataList: TagData[] = tags.map(tag => mapToTagData(tag));
+  const diaryCountTotal = await getAllDiariesCount(repoId);
   return ({
     type: INITIAL_DIARY_LIST,
     diaries: diaryDataList,
-    tags: tagDataList
+    tags: tagDataList,
+    diaryCountTotal
   });
 };
 
@@ -90,13 +94,15 @@ interface Delete {
 interface RefreshDiary {
   type: REFRESH_DIARY;
   diaries: DiaryData[];
+  diaryCountTotal: number;
 }
 
 export const refreshDiaries = async (account: AccountData, diaries: DiaryData[]): Promise<RefreshDiary> => {
   if (!(!!account && !!account.repo && !!account.repo!.localDirectory)) {
     return {
       type: REFRESH_DIARY,
-      diaries: []
+      diaries: [],
+      diaryCountTotal: 0
     };
   }
   let filesRefreshed: FileTag = {
@@ -126,8 +132,10 @@ export const refreshDiaries = async (account: AccountData, diaries: DiaryData[])
           });
     }
   }
+  const diaryCountTotal = await getAllDiariesCount(account.repo.repoId);
   return {
     type: REFRESH_DIARY,
-    diaries
+    diaries,
+    diaryCountTotal
   };
 };

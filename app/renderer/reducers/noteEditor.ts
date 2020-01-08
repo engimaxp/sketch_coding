@@ -2,7 +2,7 @@ import NoteEditorStatus, {CodeMirrorEditorState, NoteEditorState} from '../types
 import {noteActions} from '../actions/note';
 import {
   CHANGE_CONTENT,
-  CHANGE_EDIT,
+  CHANGE_EDIT, CHANGE_PAGE,
   CHANGE_TITLE, CLEAR_ALL, CODE_MIRROR_CHANGE_CURSOR, CODE_MIRROR_CHANGE_SCROLL, EDIT_ENTER,
   EDITOR_CHANGE_EDIT,
   EDITOR_CHANGE_SPLIT, SCROLL_CHANGE
@@ -73,7 +73,9 @@ export default function noteEditor(state: NoteEditorStatus = INITIAL_STATE, acti
     });
     return Object.assign({}, state ,  {editorStatus: newNoteEditorState});
   }  else if (action.type === CLEAR_ALL) {
-    return Object.assign({}, INITIAL_STATE);
+    return Object.assign({}, INITIAL_STATE, {page: state.page});
+  } else if (action.type === CHANGE_PAGE) {
+    return Object.assign({}, state ,  {page: new Page(action.pageIndex, action.pageSize)});
   } else if (action.type === EDIT_ENTER) {
     const newNoteEditorState: NoteEditorState = Object.assign({}, INITIAL_STATE.editorStatus ,  {
       content: action.content,

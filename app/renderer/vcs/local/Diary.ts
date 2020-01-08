@@ -87,6 +87,21 @@ export const getDiariesByPage = async (page: Page, repoId: number) => {
         return thisPageDiaries;
     });
 };
+export const getAllDiariesCount = async (repoId: number) => {
+    return await repository.transaction('r', [repository.diaries, repository.tags], async() => {
+        return await repository.diaries
+            .where('repoId').equals(repoId).count();
+    });
+};
+
+export const getAllDiaries = async (repoId: number) => {
+    return await repository.transaction('r', [repository.diaries, repository.tags], async() => {
+        const thisPageDiaries: any = await repository.diaries
+            .where('repoId').equals(repoId).toArray();
+        await Promise.all (thisPageDiaries.map((diary: Diary) => loadNavigationProperties(diary)));
+        return thisPageDiaries;
+    });
+};
 
 const mapToDiary = (account: AccountData, file: LocalFileInfo) => {
     return new Diary(account.repo!.repoId,

@@ -85,7 +85,7 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, AnyAction>) => ({
                 dispatch(await addDiary({
                     id: 0,
                     repoId,
-                    title: `${title}.md`,
+                    title,
                     storeLocation: secondaryDir,
                     createTime: new Date(),
                     lastUpdateTime: new Date(),

@@ -12,6 +12,10 @@ export type SCROLL_CHANGE = typeof SCROLL_CHANGE;
 export const EDIT_ENTER = 'editEnter';
 export type EDIT_ENTER = typeof EDIT_ENTER;
 
+// change page size or index
+export const CHANGE_PAGE = 'changePage';
+export type CHANGE_PAGE = typeof CHANGE_PAGE;
+
 /* -- note editor -- */
 
 // in editor mode ,user can switch between preview view and editor view
