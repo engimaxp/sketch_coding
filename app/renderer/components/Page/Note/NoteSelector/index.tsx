@@ -8,7 +8,6 @@ import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
-import AccessTimeIcon from '@material-ui/icons/AccessTime';
 import CardContent from '@material-ui/core/CardContent';
 import TablePagination from '@material-ui/core/TablePagination';
 import Container from '@material-ui/core/Container';
@@ -25,9 +24,11 @@ const useStyles = (theme: Theme) => createStyles({
         },
     },
     avatar: {
+        opacity: 0.5,
         backgroundColor: theme.palette.primary.main,
         '&:hover': {
-            background: theme.palette.primary.light,
+            background: theme.palette.primary.main,
+            opacity: 1,
         },
     },
     icon: {
@@ -65,12 +66,21 @@ const useStyles = (theme: Theme) => createStyles({
     },
     timeText: {
         fontSize: 'small',
-        color: theme.palette.grey.A700
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: theme.palette.grey.A700,
+        fontFamily: settings.markdownEditor.fontFamily
     },
     timeTagRow: {
         display: 'flex',
-        alignItems: 'end',
+        alignItems: 'center',
+        justifyContent: 'space-between',
         marginTop: theme.spacing(0.5),
+    },
+    cardTitle: {
+        fontFamily: settings.markdownEditor.fontFamily
     }
 });
 interface NoteSelectorProps extends WithStyles<typeof useStyles> {
@@ -155,24 +165,23 @@ class NoteSelector extends Component<NoteSelectorProps, NoteSelectorState> {
                                       >
                                           <div className={classes.cardDetails}>
                                               <CardContent className={classes.cardContent}>
-                                                  <Typography component="div"
-                                                              variant="h5"
-                                                  >
-                                                      {diary.title}
-                                                  </Typography>
                                                   <Typography  variant="body2" className={classes.timeTagRow}>
-                                                      <AccessTimeIcon
-                                                          display={'inline'}
-                                                          className={classes.accessTimeIcon}
-                                                      />
+                                                      <Typography component="span"
+                                                                  variant="h5"
+                                                                  className={classes.cardTitle}
+                                                      >
+                                                          {diary.title}
+                                                      </Typography>
                                                       <Typography component={'span'}
                                                                   className={classes.timeText}
                                                       >
-                                                          {moment(diary.createTime).format('YYYY/MM/DD, h:mm:ss a')}
+                                                          <span>{moment(diary.createTime).format('ddd')
+                                                              .toLocaleUpperCase()}</span>
+                                                          <span>{moment(diary.createTime).format('MM/DD')}</span>
                                                       </Typography>
-                                                      <Typography component={'span'}>
-                                                          {diary.tags.map((y: TagData) => y.tagName).join(',')}
-                                                      </Typography>
+                                                  </Typography>
+                                                  <Typography component={'span'}>
+                                                      {diary.tags.map((y: TagData) => y.tagName).join(',')}
                                                   </Typography>
                                               </CardContent>
                                           </div>

@@ -3,7 +3,7 @@ export const settings = {
     diaryPageDefaultSize: 20,
     markdownEditor: {
         fontSize: 14,
-        fontFamily: 'Consolas, Courier New, monospace',
+        fontFamily: 'Tahoma, Helvetica, Arial, "Microsoft Yahei","微软雅黑", STXihei, "华文细黑", sans-serif',
         padding: 10,
         titleMaxLength: 25,
         splitView: {
