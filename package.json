@@ -78,7 +78,7 @@
     "is-boolean-object": "^1.0.0",
     "isomorphic-git": "^0.55.2",
     "jest": "22.4.2",
-    "lodash": "^4.17.13",
+    "lodash": "^4.17.19",
     "lodash-es": "^4.17.14",
     "lodash.template": "^4.5.0",
     "mkdirp": "^0.5.1",
