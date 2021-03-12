@@ -93,7 +93,7 @@
     "react": "^16.8.0",
     "react-codemirror2": "^6.0.0",
     "react-custom-scrollbars": "^4.2.1",
-    "react-dev-utils": "5.0.2",
+    "react-dev-utils": "11.0.4",
     "react-dom": "^16.8.0",
     "react-helmet": "^5.2.0",
     "react-redux": "^5.1.0",
