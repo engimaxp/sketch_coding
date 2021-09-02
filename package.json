@@ -76,7 +76,7 @@
     "history": "^4.7.2",
     "html-webpack-plugin": "2.29.0",
     "is-boolean-object": "^1.0.0",
-    "isomorphic-git": "^0.55.2",
+    "isomorphic-git": "^1.8.2",
     "jest": "22.4.2",
     "lodash": "^4.17.13",
     "lodash-es": "^4.17.14",
