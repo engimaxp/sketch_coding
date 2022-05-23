@@ -63,7 +63,7 @@
     "codemirror": "^5.48.4",
     "connected-react-router": "^4.4.1",
     "css-loader": "0.28.7",
-    "dexie": "^2.0.4",
+    "dexie": "^3.2.2",
     "dotenv": "8.0.0",
     "dotenv-expand": "4.2.0",
     "enzyme": "^3.9.0",
